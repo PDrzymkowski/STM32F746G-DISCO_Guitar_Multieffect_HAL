@@ -889,8 +889,9 @@ uint8_t BSP_AUDIO_IN_OUT_Init(uint16_t InputDevice, uint16_t OutputDevice, uint3
   uint8_t ret = AUDIO_ERROR;
   uint32_t deviceid = 0x00;
   uint32_t slot_active;
+	//MOJE
 
-  if (InputDevice != INPUT_DEVICE_DIGITAL_MICROPHONE_2)  /* Only MICROPHONE_2 input supported */
+  if (InputDevice != INPUT_DEVICE_INPUT_LINE_1)  /* Only MICROPHONE_2 input supported */
   {
     ret = AUDIO_ERROR;
   }
@@ -925,13 +926,13 @@ uint8_t BSP_AUDIO_IN_OUT_Init(uint16_t InputDevice, uint16_t OutputDevice, uint3
      *   - SAI2_block_A in master TX mode
      *   - SAI2_block_B in slave RX mode synchronous from SAI2_block_A
      */
-    if (InputDevice == INPUT_DEVICE_DIGITAL_MICROPHONE_2)
+    if (InputDevice != INPUT_DEVICE_INPUT_LINE_1)
     {
       slot_active = CODEC_AUDIOFRAME_SLOT_13;
     }
     else
     {
-      slot_active = CODEC_AUDIOFRAME_SLOT_02;
+      slot_active = SAI_SLOTACTIVE_0;
     }
     SAIx_In_Init(SAI_MODEMASTER_TX, slot_active, AudioFreq);
 
@@ -954,7 +955,7 @@ uint8_t BSP_AUDIO_IN_OUT_Init(uint16_t InputDevice, uint16_t OutputDevice, uint3
     if(ret == AUDIO_OK)
     {
       /* Initialize the codec internal registers */
-      audio_drv->Init(AUDIO_I2C_ADDRESS, InputDevice | OutputDevice, 100, AudioFreq);
+			 audio_drv->Init(AUDIO_I2C_ADDRESS, OutputDevice | InputDevice, 50, AudioFreq);
     }
   }
   return ret;
@@ -1267,6 +1268,10 @@ static void SAIx_In_Init(uint32_t SaiOutMode, uint32_t SlotActive, uint32_t Audi
   haudio_out_sai.Init.OutputDrive = SAI_OUTPUTDRIVE_ENABLED;
   haudio_out_sai.Init.FIFOThreshold = SAI_FIFOTHRESHOLD_1QF;
 
+	//MOJE Ustawienie trybu Mono dla sai
+	 haudio_out_sai.Init.MonoStereoMode = SAI_STEREOMODE;
+
+
   /* Configure SAI_Block_x Frame
   Frame Length: 64
   Frame active Length: 32
@@ -1323,6 +1328,9 @@ static void SAIx_In_Init(uint32_t SaiOutMode, uint32_t SlotActive, uint32_t Audi
   haudio_in_sai.FrameInit.FSDefinition = SAI_FS_CHANNEL_IDENTIFICATION;
   haudio_in_sai.FrameInit.FSPolarity = SAI_FS_ACTIVE_LOW;
   haudio_in_sai.FrameInit.FSOffset = SAI_FS_BEFOREFIRSTBIT;
+	
+		//MOJE Ustawienie trybu Mono dla sai
+	 haudio_in_sai.Init.MonoStereoMode = SAI_MONOMODE;
   
   /* Configure SAI Block_x Slot
   Slot First Bit Offset: 0

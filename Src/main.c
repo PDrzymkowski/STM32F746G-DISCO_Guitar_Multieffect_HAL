@@ -23,16 +23,40 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "string.h"
 
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+typedef enum
+{
+  BUFFER_OFFSET_NONE = 0,
+  BUFFER_OFFSET_HALF = 1,
+  BUFFER_OFFSET_FULL = 2,
+}BUFFER_StateTypeDef;
 
+typedef enum
+{
+	MAIN_WINDOW = 0,
+	VOLUME_WINDOW = 1,
+	REVERB_WINDOW = 2,
+	OVERDRIVE_WINDOW = 3,
+	DELAY_WINDOW = 4,
+	FLANGER_WINDOW = 5,
+	CHORUS_WINDOW = 6,
+	TREMOLO_WINDOW = 7,
+	PITCH_SHIFTER_WINDOW = 8,
+	
+}CURRENT_WINDOW_StateTypeDef;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define AUDIO_BLOCK_SIZE   ((uint32_t)512)
+#define AUDIO_BUFFER_IN    AUDIO_REC_START_ADDR     /* In SDRAM */
+#define AUDIO_BUFFER_OUT   (AUDIO_REC_START_ADDR + (AUDIO_BLOCK_SIZE * 2)) /* In SDRAM */
+
 
 /* USER CODE END PD */
 
@@ -47,6 +71,7 @@ CRC_HandleTypeDef hcrc;
 
 DMA2D_HandleTypeDef hdma2d;
 
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -57,12 +82,31 @@ static void MX_GPIO_Init(void);
 static void MX_CRC_Init(void);
 static void MX_DMA2D_Init(void);
 /* USER CODE BEGIN PFP */
+void Multieffect(void);
+void LCD_Multieffect_Init(void);
+void Current_Window_Select(void);
+void MainWindow_Touch_Detection(void);
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+TS_StateTypeDef 			ts;
+char xTouchStr[10];
+uint16_t x, y;
+uint32_t  audio_rec_buffer_state;
+uint8_t current_window;
+char button_names[8][14] = {
+			
+			"Reverb",
+			"Overdrive",
+			"Delay",
+			"Glosnosc",
+			"Flanger",
+			"Chorus",
+			"Tremolo",	
+			"Pitch Shifter"
+};
 /* USER CODE END 0 */
 
 /**
@@ -72,9 +116,11 @@ static void MX_DMA2D_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+							/*Enable the CPU Cache */
+							/*Enable I-Cache and D-Cache */
+							SCB_EnableICache();
+							SCB_EnableDCache();
   /* USER CODE END 1 */
-  
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -98,6 +144,14 @@ int main(void)
   MX_DMA2D_Init();
   /* USER CODE BEGIN 2 */
 
+BSP_SDRAM_Init(); /* Initializes the SDRAM device */
+__HAL_RCC_CRC_CLK_ENABLE(); /* Enable the CRC Module */
+
+BSP_LED_Init(LED1);
+/* Configure the User Button in GPIO Mode */
+BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_GPIO);
+LCD_Multieffect_Init();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -105,9 +159,10 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
     /* USER CODE BEGIN 3 */
+			Multieffect();
   }
+	
   /* USER CODE END 3 */
 }
 
@@ -253,6 +308,227 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void LCD_Multieffect_Init()
+{
+		BSP_TS_Init(480, 270);  /* Inicjalizacja panelu dotykowego */
+		BSP_LCD_Init();						/* Inicjalizacja wyswietlacza LCD */
+		BSP_LCD_LayerDefaultInit(LTDC_ACTIVE_LAYER, LCD_FRAME_BUFFER);  /* Inicjalizacja warstwy LCD - bufor LCD w pamieci */
+		BSP_LCD_DisplayOn();	/* Uruchomienie wyswietlacza */
+		BSP_LCD_SelectLayer(LTDC_ACTIVE_LAYER);    
+	
+		Display_MainWindow();
+}
+
+void Display_MainWindow(void)
+{ 
+	  BSP_LCD_SetFont(&Font12);
+	  BSP_LCD_Clear(LCD_COLOR_LIGHTGRAY);
+		int i;
+	  BSP_LCD_SetBackColor(LCD_COLOR_WHITE);
+		for(i=1; i<9; i++)
+	{
+		BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
+		BSP_LCD_FillRect(BUTTON_XPOS(i), BUTTON_YPOS(i), BUTTON_WIDTH, BUTTON_HEIGHT);
+	  
+		BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
+	  BSP_LCD_DisplayStringAt(BUTTON_XPOS(i)+2, BUTTON_YPOS(i)+(BUTTON_HEIGHT/2)-3, (uint8_t *)button_names[i-1], LEFT_MODE);
+	}
+
+	current_window = MAIN_WINDOW;
+	
+}
+	
+void Multieffect(void)
+{
+	/* Inicjalizacja kodeka, SAI */
+  if (BSP_AUDIO_IN_OUT_Init(INPUT_DEVICE_INPUT_LINE_1 , OUTPUT_DEVICE_HEADPHONE, I2S_AUDIOFREQ_44K  , DEFAULT_AUDIO_IN_BIT_RESOLUTION, DEFAULT_AUDIO_IN_CHANNEL_NBR) == AUDIO_OK)
+  {
+    BSP_LCD_SetBackColor(LCD_COLOR_WHITE);
+    BSP_LCD_SetTextColor(LCD_COLOR_GREEN);
+  }
+  else
+  {
+    BSP_LCD_SetBackColor(LCD_COLOR_WHITE);
+    BSP_LCD_SetTextColor(LCD_COLOR_RED);
+    BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize() - 95, (uint8_t *)"BLAD URZADZENIA AUDIO", CENTER_MODE);
+    BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize() - 80, (uint8_t *)" Sprobuj zresetowac urzadzenie", CENTER_MODE);
+  }
+
+  /* Inicjalizacja buforów SDRAM */
+  memset((uint16_t*)AUDIO_BUFFER_IN, 0, AUDIO_BLOCK_SIZE*2);
+  memset((uint16_t*)AUDIO_BUFFER_OUT, 0, AUDIO_BLOCK_SIZE*2);
+  audio_rec_buffer_state = BUFFER_OFFSET_NONE;
+
+  /* Rozpoczecie nagrywania */
+  BSP_AUDIO_IN_Record((uint16_t*)AUDIO_BUFFER_IN, AUDIO_BLOCK_SIZE);
+
+  /* Odtworzenie */
+  BSP_AUDIO_OUT_SetAudioFrameSlot(SAI_SLOTACTIVE_0);
+  BSP_AUDIO_OUT_Play((uint16_t*)AUDIO_BUFFER_OUT, AUDIO_BLOCK_SIZE * 2);
+	
+	 while (1)
+  {
+    /* Czekaj na nagranie polowy bloku */
+    while(audio_rec_buffer_state != BUFFER_OFFSET_HALF)
+    {
+			HAL_Delay(1);
+    }
+    audio_rec_buffer_state = BUFFER_OFFSET_NONE;
+    /* Skopiuj nagrany blok */
+    memcpy((uint16_t *)(AUDIO_BUFFER_OUT),
+           (uint16_t *)(AUDIO_BUFFER_IN),
+           AUDIO_BLOCK_SIZE);
+
+    /* Czekaj do konca nagrania bloku */
+    while(audio_rec_buffer_state != BUFFER_OFFSET_FULL)
+    {
+			HAL_Delay(1);
+    }
+    audio_rec_buffer_state = BUFFER_OFFSET_NONE;
+    /* Skopiuj 2gi nagrany blok */
+    memcpy((uint16_t *)(AUDIO_BUFFER_OUT + (AUDIO_BLOCK_SIZE)),
+           (uint16_t *)(AUDIO_BUFFER_IN + (AUDIO_BLOCK_SIZE)),
+           AUDIO_BLOCK_SIZE);
+		
+		/* Sprawdz jaki jest stan wyswietlacza dotykowego oraz czy uzytkownik go dotknal */
+		BSP_TS_GetState(&ts);
+		if(ts.touchDetected)
+		{
+				/* Pobierz koordynaty dotknietego ekranu */
+			  x = ts.touchX[0];
+        y = ts.touchY[0];
+				/* Sprawdz, które okno jest obecnie aktywne */
+				Current_Window_Select();
+		}
+  }
+}
+
+void Current_Window_Select(void)
+{
+		switch(current_window)
+		{
+			case MAIN_WINDOW:
+				MainWindow_Touch_Detection();
+				break;
+			case VOLUME_WINDOW:
+				VolumeWindow_Touch_Detection(x, y);
+				break;
+			case REVERB_WINDOW:
+		//		ReverbWindow_Touch_Detection(x, y);
+				break;
+			case OVERDRIVE_WINDOW:
+	//			OverdriveWindow_Touch_Detection(x, y);
+				break;
+			case DELAY_WINDOW:
+	//			DelayWindow_Touch_Detection(x, y);
+				break;			
+			case FLANGER_WINDOW:
+		//		FlangerWindow_Touch_Detection(x, y);
+				break;		
+			case CHORUS_WINDOW:
+		//		ChorusWindow_Touch_Detection(x, y);
+				break;		
+			case TREMOLO_WINDOW:
+		//		TremoloWindow_Touch_Detection(x, y);
+				break;		
+			case PITCH_SHIFTER_WINDOW:
+		//		PitchShifterWindow_Touch_Detection(x, y);
+				break;		
+		}
+	
+}
+
+
+void MainWindow_Touch_Detection(void)
+{
+		/* Sprawdzenie 1ego rzedu przycisków */
+		if((y > BUTTON_YPOS(1)) && (y < BUTTON_YPOS(1) + BUTTON_HEIGHT))
+		{
+				/* Sprawdzenie przycisku Reverb */	
+				if((x > BUTTON_XPOS(1)) && (x < BUTTON_XPOS(1) + BUTTON_WIDTH))
+				{
+					//	Display_Reverb_Window();
+				/* Sprawdzenie przycisku Overdrive */						
+				}else if((x > BUTTON_XPOS(2)) && (x < BUTTON_XPOS(2) + BUTTON_WIDTH))
+				{
+					//	Display_Overdrive_Window();
+				/* Sprawdzenie przycisku Delay */						
+				}else if((x > BUTTON_XPOS(3)) && (x < BUTTON_XPOS(3) + BUTTON_WIDTH))
+				{
+					//	Display_Delay_Window();
+				/* Sprawdzenie przycisku Glosnosc */					
+				}else if((x > BUTTON_XPOS(4)) && (x < BUTTON_XPOS(4) + BUTTON_WIDTH))
+				{
+					 current_window = VOLUME_WINDOW;
+					 Display_Volume_Window();
+				}
+		/* Sprawdzenie 2ego rzedu przycisków */			
+		}else if((y > BUTTON_YPOS(5)) && (y < BUTTON_YPOS(5) + BUTTON_HEIGHT))
+		{
+				/* Sprawdzenie przycisku Flanger */				
+				if((x > BUTTON_XPOS(5)) && (x < BUTTON_XPOS(5) + BUTTON_WIDTH))
+				{
+					//	Display_Flanger_Window();
+				/* Sprawdzenie przycisku Chorus */					
+				}else if((x > BUTTON_XPOS(6)) && (x < BUTTON_XPOS(6) + BUTTON_WIDTH))
+				{
+					//	Display_Chorus_Window();
+				/* Sprawdzenie przycisku Tremolo */					
+				}else if((x > BUTTON_XPOS(7)) && (x < BUTTON_XPOS(7) + BUTTON_WIDTH))
+				{
+					//	Display_PitchShifter_Window();
+				/* Sprawdzenie przycisku Pitch Shifter */			
+				}else if((x > BUTTON_XPOS(8)) && (x < BUTTON_XPOS(8) + BUTTON_WIDTH))
+				{		
+					
+				}
+		}
+}
+
+
+
+/**
+  * @brief Manages the DMA Transfer complete interrupt.
+  * @param None
+  * @retval None
+  */
+void BSP_AUDIO_IN_TransferComplete_CallBack(void)
+{
+  audio_rec_buffer_state = BUFFER_OFFSET_FULL;
+  return;
+}
+
+/**
+  * @brief  Manages the DMA Half Transfer complete interrupt.
+  * @param  None
+  * @retval None
+  */
+void BSP_AUDIO_IN_HalfTransfer_CallBack(void)
+{
+  audio_rec_buffer_state = BUFFER_OFFSET_HALF;
+  return;
+}
+
+/**
+  * @brief  Audio IN Error callback function.
+  * @param  None
+  * @retval None
+  */
+void BSP_AUDIO_IN_Error_CallBack(void)
+{
+  /* This function is called when an Interrupt due to transfer error on or peripheral
+     error occurs. */
+  /* Display message on the LCD screen */
+  BSP_LCD_SetBackColor(LCD_COLOR_RED);
+  BSP_LCD_DisplayStringAt(0, LINE(14), (uint8_t *)"       DMA  ERROR     ", CENTER_MODE);
+
+  /* Stop the program with an infinite loop */
+  while (BSP_PB_GetState(BUTTON_KEY) != RESET)
+  {
+    return;
+  }
+}
 
 /* USER CODE END 4 */
 

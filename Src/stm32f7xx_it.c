@@ -58,7 +58,16 @@
 /* External variables --------------------------------------------------------*/
 
 /* USER CODE BEGIN EV */
-
+extern LTDC_HandleTypeDef hLtdcHandler;
+extern DMA_HandleTypeDef   hdma;
+/*DMA status declared in "sdram_dma.c" file */
+extern uint32_t uwDMA_Transfer_Complete;
+/* SAI handler declared in "stm32746g_discovery_audio.c" file */
+extern SAI_HandleTypeDef haudio_out_sai;
+/* SAI handler declared in "stm32746g_discovery_audio.c" file */
+extern SAI_HandleTypeDef haudio_in_sai;
+/* SDRAM handler declared in "stm32746g_discovery_sdram.c" file */
+extern SDRAM_HandleTypeDef sdramHandle;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -184,6 +193,95 @@ void PendSV_Handler(void)
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */
+/**
+  * @brief  This function handles SysTick Handler.
+  * @param  None
+  * @retval None
+  */
+void SysTick_Handler(void)
+{
+  HAL_IncTick();
+}
+
+
+void LTDC_IRQHandler(void)
+{
+	HAL_LTDC_IRQHandler(&hLtdcHandler);
+}
+
+/**
+  * @brief  This function handles External line 1 interrupt request.
+  * @param  None
+  * @retval None
+  */
+void EXTI0_IRQHandler(void)
+{
+  HAL_GPIO_EXTI_IRQHandler(WAKEUP_BUTTON_PIN);
+}
+
+/**
+  * @brief  This function handles External line 2 interrupt request.
+  * @param  None
+  * @retval None
+  */
+void EXTI2_IRQHandler(void)
+{
+   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_2);
+}
+
+
+/**
+  * @brief  This function handles External line 15_10 interrupt request.
+  * @param  None
+  * @retval None
+  */
+void EXTI15_10_IRQHandler(void)
+{
+  /* Interrupt handler shared between SD_DETECT pin, USER_KEY button and touch screen interrupt */
+  if (__HAL_GPIO_EXTI_GET_IT(SD_DETECT_PIN) != RESET)
+  {
+    HAL_GPIO_EXTI_IRQHandler(SD_DETECT_PIN | TS_INT_PIN | AUDIO_IN_INT_GPIO_PIN);   /* SD detect event or touch screen interrupt */
+  }
+  else
+  {     /* User button event or Touch screen interrupt */
+    HAL_GPIO_EXTI_IRQHandler(KEY_BUTTON_PIN);
+  }
+}
+
+
+/**
+  * @brief This function handles DMA2 Stream 7 interrupt request.
+  * @param None
+  * @retval None
+  */
+void AUDIO_IN_SAIx_DMAx_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(haudio_in_sai.hdmarx);
+}
+
+
+/**
+  * @brief  Handles SDRAM DMA transfer interrupt request.
+  * @retval None
+  */
+void BSP_SDRAM_DMA_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(sdramHandle.hdma); 
+}
+
+
+/**
+  * @brief  This function handles DMA2 Stream 6 interrupt request.
+  * @param  None
+  * @retval None
+  */
+void AUDIO_OUT_SAIx_DMAx_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(haudio_out_sai.hdmatx);
+}
+
+
+
 
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

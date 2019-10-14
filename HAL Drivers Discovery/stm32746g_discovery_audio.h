@@ -44,7 +44,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 /* Include audio component Driver */
-#include "../Components/wm8994/wm8994.h"
+#include "wm8994.h"
 #include "stm32746g_discovery.h"
 
 /** @addtogroup BSP
@@ -165,7 +165,7 @@
 /* AudioFreq * DataSize (2 bytes) * NumChannels (Stereo: 2) */
 #define DEFAULT_AUDIO_IN_FREQ               I2S_AUDIOFREQ_16K
 #define DEFAULT_AUDIO_IN_BIT_RESOLUTION     ((uint8_t)16)
-#define DEFAULT_AUDIO_IN_CHANNEL_NBR        ((uint8_t)2) /* Mono = 1, Stereo = 2 */
+#define DEFAULT_AUDIO_IN_CHANNEL_NBR        ((uint8_t)1) /* Mono = 1, Stereo = 2 */
 #define DEFAULT_AUDIO_IN_VOLUME             ((uint16_t)64)
 
 /*------------------------------------------------------------------------------
