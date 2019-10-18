@@ -412,6 +412,46 @@
               <FileType>1</FileType>
               <FilePath>..\Src\volume.c</FilePath>
             </File>
+            <File>
+              <FileName>chorus.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\chorus.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\delay.c</FilePath>
+            </File>
+            <File>
+              <FileName>flanger.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\flanger.c</FilePath>
+            </File>
+            <File>
+              <FileName>overdrive.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\overdrive.c</FilePath>
+            </File>
+            <File>
+              <FileName>pitch_shifter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\pitch_shifter.c</FilePath>
+            </File>
+            <File>
+              <FileName>reverb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\reverb.c</FilePath>
+            </File>
+            <File>
+              <FileName>tremolo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\tremolo.c</FilePath>
+            </File>
+            <File>
+              <FileName>GUI.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\GUI.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

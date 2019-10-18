@@ -1,5 +1,6 @@
 stm_multiefekt_drugie_podejscie\volume.o: ..\Src\volume.c
 stm_multiefekt_drugie_podejscie\volume.o: ../Inc/volume.h
+stm_multiefekt_drugie_podejscie\volume.o: ../Inc/GUI.h
 stm_multiefekt_drugie_podejscie\volume.o: ../Inc/main.h
 stm_multiefekt_drugie_podejscie\volume.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal.h
 stm_multiefekt_drugie_podejscie\volume.o: ../Inc/stm32f7xx_hal_conf.h
@@ -54,6 +55,4 @@ stm_multiefekt_drugie_podejscie\volume.o: ..\GUI Files\fonts\fonts.h
 stm_multiefekt_drugie_podejscie\volume.o: ..\HAL Drivers Discovery\stm32746g_discovery_audio.h
 stm_multiefekt_drugie_podejscie\volume.o: ..\Audio Codec Files\wm8994\wm8994.h
 stm_multiefekt_drugie_podejscie\volume.o: ..\Audio Codec Files\wm8994\audio.h
-stm_multiefekt_drugie_podejscie\volume.o: ../Inc/volume.h
-stm_multiefekt_drugie_podejscie\volume.o: ../Inc/main.h
 stm_multiefekt_drugie_podejscie\volume.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h

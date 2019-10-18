@@ -24,6 +24,14 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "string.h"
+#include "volume.h"
+#include "overdrive.h"
+#include "chorus.h"
+#include "reverb.h"
+#include "delay.h"
+#include "pitch_shifter.h"
+#include "tremolo.h"
+#include "flanger.h"
 
 /* USER CODE END Includes */
 
@@ -46,9 +54,10 @@ typedef enum
 	FLANGER_WINDOW = 5,
 	CHORUS_WINDOW = 6,
 	TREMOLO_WINDOW = 7,
-	PITCH_SHIFTER_WINDOW = 8,
-	
+	PITCHSHIFTER_WINDOW = 8,
 }CURRENT_WINDOW_StateTypeDef;
+
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -107,6 +116,8 @@ char button_names[8][14] = {
 			"Tremolo",	
 			"Pitch Shifter"
 };
+
+uint8_t is_button_active= BUTTON_NOT_ACTIVE;
 /* USER CODE END 0 */
 
 /**
@@ -393,14 +404,20 @@ void Multieffect(void)
 		
 		/* Sprawdz jaki jest stan wyswietlacza dotykowego oraz czy uzytkownik go dotknal */
 		BSP_TS_GetState(&ts);
-		if(ts.touchDetected)
+		while(ts.touchDetected)
 		{
+				BSP_AUDIO_OUT_SetMute(AUDIO_MUTE_ON);
 				/* Pobierz koordynaty dotknietego ekranu */
 			  x = ts.touchX[0];
         y = ts.touchY[0];
 				/* Sprawdz, które okno jest obecnie aktywne */
 				Current_Window_Select();
+				is_button_active = BUTTON_ACTIVE;
+				BSP_TS_GetState(&ts);
 		}
+				BSP_AUDIO_OUT_SetMute(AUDIO_MUTE_OFF);
+				is_button_active = BUTTON_NOT_ACTIVE;
+		
   }
 }
 
@@ -415,25 +432,25 @@ void Current_Window_Select(void)
 				VolumeWindow_Touch_Detection(x, y);
 				break;
 			case REVERB_WINDOW:
-		//		ReverbWindow_Touch_Detection(x, y);
+				ReverbWindow_Touch_Detection(x, y);
 				break;
 			case OVERDRIVE_WINDOW:
-	//			OverdriveWindow_Touch_Detection(x, y);
+				OverdriveWindow_Touch_Detection(x, y);
 				break;
 			case DELAY_WINDOW:
-	//			DelayWindow_Touch_Detection(x, y);
+				DelayWindow_Touch_Detection(x, y);
 				break;			
 			case FLANGER_WINDOW:
-		//		FlangerWindow_Touch_Detection(x, y);
+				FlangerWindow_Touch_Detection(x, y);
 				break;		
 			case CHORUS_WINDOW:
-		//		ChorusWindow_Touch_Detection(x, y);
+				ChorusWindow_Touch_Detection(x, y);
 				break;		
 			case TREMOLO_WINDOW:
-		//		TremoloWindow_Touch_Detection(x, y);
+				TremoloWindow_Touch_Detection(x, y);
 				break;		
-			case PITCH_SHIFTER_WINDOW:
-		//		PitchShifterWindow_Touch_Detection(x, y);
+			case PITCHSHIFTER_WINDOW:
+				PitchShifterWindow_Touch_Detection(x, y);
 				break;		
 		}
 	
@@ -448,15 +465,18 @@ void MainWindow_Touch_Detection(void)
 				/* Sprawdzenie przycisku Reverb */	
 				if((x > BUTTON_XPOS(1)) && (x < BUTTON_XPOS(1) + BUTTON_WIDTH))
 				{
-					//	Display_Reverb_Window();
+					  current_window = REVERB_WINDOW;
+						Display_Reverb_Window();
 				/* Sprawdzenie przycisku Overdrive */						
 				}else if((x > BUTTON_XPOS(2)) && (x < BUTTON_XPOS(2) + BUTTON_WIDTH))
 				{
-					//	Display_Overdrive_Window();
+						current_window = OVERDRIVE_WINDOW;
+				  	Display_Overdrive_Window();
 				/* Sprawdzenie przycisku Delay */						
 				}else if((x > BUTTON_XPOS(3)) && (x < BUTTON_XPOS(3) + BUTTON_WIDTH))
 				{
-					//	Display_Delay_Window();
+						current_window = DELAY_WINDOW;
+						Display_Delay_Window();
 				/* Sprawdzenie przycisku Glosnosc */					
 				}else if((x > BUTTON_XPOS(4)) && (x < BUTTON_XPOS(4) + BUTTON_WIDTH))
 				{
@@ -469,19 +489,23 @@ void MainWindow_Touch_Detection(void)
 				/* Sprawdzenie przycisku Flanger */				
 				if((x > BUTTON_XPOS(5)) && (x < BUTTON_XPOS(5) + BUTTON_WIDTH))
 				{
-					//	Display_Flanger_Window();
+					 current_window = FLANGER_WINDOW;
+					 Display_Flanger_Window();
 				/* Sprawdzenie przycisku Chorus */					
 				}else if((x > BUTTON_XPOS(6)) && (x < BUTTON_XPOS(6) + BUTTON_WIDTH))
 				{
-					//	Display_Chorus_Window();
+					  current_window = CHORUS_WINDOW;
+						Display_Chorus_Window();
 				/* Sprawdzenie przycisku Tremolo */					
 				}else if((x > BUTTON_XPOS(7)) && (x < BUTTON_XPOS(7) + BUTTON_WIDTH))
 				{
-					//	Display_PitchShifter_Window();
+					 	current_window = TREMOLO_WINDOW;
+						Display_Tremolo_Window();
 				/* Sprawdzenie przycisku Pitch Shifter */			
 				}else if((x > BUTTON_XPOS(8)) && (x < BUTTON_XPOS(8) + BUTTON_WIDTH))
 				{		
-					
+					 	current_window = PITCHSHIFTER_WINDOW;
+						Display_PitchShifter_Window();
 				}
 		}
 }

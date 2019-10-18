@@ -53,7 +53,21 @@ stm_multiefekt_drugie_podejscie\main.o: ..\GUI Files\fonts\fonts.h
 stm_multiefekt_drugie_podejscie\main.o: ..\HAL Drivers Discovery\stm32746g_discovery_audio.h
 stm_multiefekt_drugie_podejscie\main.o: ..\Audio Codec Files\wm8994\wm8994.h
 stm_multiefekt_drugie_podejscie\main.o: ..\Audio Codec Files\wm8994\audio.h
-stm_multiefekt_drugie_podejscie\main.o: ../Inc/volume.h
-stm_multiefekt_drugie_podejscie\main.o: ../Inc/main.h
 stm_multiefekt_drugie_podejscie\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 stm_multiefekt_drugie_podejscie\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+stm_multiefekt_drugie_podejscie\main.o: ../Inc/volume.h
+stm_multiefekt_drugie_podejscie\main.o: ../Inc/GUI.h
+stm_multiefekt_drugie_podejscie\main.o: ../Inc/overdrive.h
+stm_multiefekt_drugie_podejscie\main.o: ../Inc/GUI.h
+stm_multiefekt_drugie_podejscie\main.o: ../Inc/chorus.h
+stm_multiefekt_drugie_podejscie\main.o: ../Inc/GUI.h
+stm_multiefekt_drugie_podejscie\main.o: ../Inc/reverb.h
+stm_multiefekt_drugie_podejscie\main.o: ../Inc/GUI.h
+stm_multiefekt_drugie_podejscie\main.o: ../Inc/delay.h
+stm_multiefekt_drugie_podejscie\main.o: ../Inc/GUI.h
+stm_multiefekt_drugie_podejscie\main.o: ../Inc/pitch_shifter.h
+stm_multiefekt_drugie_podejscie\main.o: ../Inc/GUI.h
+stm_multiefekt_drugie_podejscie\main.o: ../Inc/tremolo.h
+stm_multiefekt_drugie_podejscie\main.o: ../Inc/GUI.h
+stm_multiefekt_drugie_podejscie\main.o: ../Inc/flanger.h
+stm_multiefekt_drugie_podejscie\main.o: ../Inc/GUI.h

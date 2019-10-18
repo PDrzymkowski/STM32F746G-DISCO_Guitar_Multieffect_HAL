@@ -38,12 +38,29 @@ extern "C" {
 #include "stm32746g_discovery_lcd.h"
 #include "stm32746g_discovery_audio.h"
 
-#include "volume.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+typedef enum
+{
+	ACTIVE = 0,
+	NOT_ACTIVE = 1,
+	
+}IS_EFFECT_ACTIVE_StateTypeDef;
+
+typedef enum
+{
+	BUTTON_ACTIVE = 0,
+	BUTTON_NOT_ACTIVE = 1,
+}IS_BUTTON_ACTIVE_StateTypeDef;
+
+typedef enum
+{
+	SOI = 0,
+	NOI = 1,
+}FILTER_VERSION_StateTypeDef;
 
 /* USER CODE END ET */
 
@@ -68,15 +85,6 @@ void Display_MainWindow(void);
 #define LED_Pin GPIO_PIN_0
 #define LED_GPIO_Port GPIOI
 /* USER CODE BEGIN Private defines */
-
-#define BACK_BUTTON_XPOS		10
-#define BACK_BUTTON_YPOS		5
-#define BACK_BUTTON_HEIGHT		40
-#define BACK_BUTTON_WIDTH		70
-#define  BUTTON_HEIGHT        70
-#define BUTTON_WIDTH					100
-#define  BUTTON_XPOS(i)       (((i%4) * BSP_LCD_GetXSize()) / 4) + 10
-#define  BUTTON_YPOS(i)       ((i < 5)?  ((BSP_LCD_GetYSize() - BUTTON_HEIGHT - 160)): ((BSP_LCD_GetYSize() - BUTTON_HEIGHT - 50)))
 
 #define RGB565_BYTE_PER_PIXEL     2
 #define ARBG8888_BYTE_PER_PIXEL   4
