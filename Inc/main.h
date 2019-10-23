@@ -93,6 +93,10 @@ void Display_MainWindow(void);
 #define CAMERA_RES_MAX_X          640
 #define CAMERA_RES_MAX_Y          480
 
+#define AUDIO_BLOCK_SIZE   ((uint32_t)512)
+#define AUDIO_BUFFER_IN    AUDIO_REC_START_ADDR     /* In SDRAM */
+#define AUDIO_BUFFER_OUT   (AUDIO_REC_START_ADDR + (AUDIO_BLOCK_SIZE * 2)) /* In SDRAM */
+
 /**
   * @brief  LCD FB_StartAddress
   * LCD Frame buffer start address : starts at beginning of SDRAM

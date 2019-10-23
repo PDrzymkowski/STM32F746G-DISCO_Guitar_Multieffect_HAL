@@ -81,7 +81,7 @@ void PitchShifterWindow_Touch_Detection(uint16_t x, uint16_t y)
 {
 			if((y >PARAM1_BUTTON_YPOS) && (y <PARAM1_BUTTON_YPOS+ PARAM_BUTTON_HEIGHT))
 		{
-				/* Sprawdzenie przycisku zwiekszenia parametru Delay */	
+				/* Sprawdzenie przycisku zwiekszenia parametru Pitch */	
 				if((x > PITCH_UP_BUTTON_XPOS) && (x < PITCH_UP_BUTTON_XPOS +PARAM_BUTTON_WIDTH))
 				{
 					if(pitch_pitchshifter<12)
@@ -89,7 +89,7 @@ void PitchShifterWindow_Touch_Detection(uint16_t x, uint16_t y)
 						pitch_pitchshifter +=1;
 						Display_Current_Parametres_PitchShifter();
 					}
-				/* Sprawdzenie przycisku zmnieszenia parametru Delay */	
+				/* Sprawdzenie przycisku zmnieszenia parametru Pitch */	
 				}else if((x > PITCH_DOWN_BUTTON_XPOS) && (x < PITCH_DOWN_BUTTON_XPOS + PARAM_BUTTON_WIDTH))
 				{
 				if(pitch_pitchshifter>-12)
@@ -124,7 +124,7 @@ void PitchShifterWindow_Touch_Detection(uint16_t x, uint16_t y)
 			
 		 }else if((y >PARAM2_BUTTON_YPOS) && (y <PARAM2_BUTTON_YPOS+ MODE_BUTTON_HEIGHT))
 		{
-			/* Sprawdzenie przycisku zmiany wersji efektu */	
+			/* Sprawdzenie przycisku zmiany trybu efektu */	
 			if((x > MODE_BUTTON_XPOS) && (x < MODE_BUTTON_XPOS + MODE_BUTTON_WIDTH))
 				{
 						if(is_button_active==BUTTON_NOT_ACTIVE)
@@ -183,7 +183,6 @@ void Display_Current_Parametres_PitchShifter(void)
 		BSP_LCD_SetFont(&Font24);
 		sprintf(pitch_str_pitchshifter, "%.1f", pitch_pitchshifter);
 	  BSP_LCD_DisplayStringAt(PITCH_DOWN_BUTTON_XPOS+PARAM_BUTTON_WIDTH+20, PARAM1_BUTTON_YPOS+(PARAM_BUTTON_HEIGHT/2)-8, (uint8_t *)pitch_str_pitchshifter, LEFT_MODE);
-		HAL_Delay(10);
 		if(mode_pitchshifter == ADD)
 		{
 		sprintf(gain_str_pitchshifter, "%.2f", gain_pitchshifter);
@@ -218,7 +217,7 @@ void Display_On_Off_Info_PitchShifter(void)
 	
 }
 
-void PitchShifter(void)
+void PitchShifter(uint16_t *data)
 {
 		if(is_active_pitchshifter == ACTIVE)
 	{

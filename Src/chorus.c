@@ -268,7 +268,7 @@ void Display_On_Off_Info_Chorus(void)
 	} 
 }
 
-void Chorus(void)
+void Chorus(uint16_t *data)
 {
 	if(is_active_chorus == ACTIVE)
 	{

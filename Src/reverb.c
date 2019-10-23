@@ -156,7 +156,6 @@ void ReverbWindow_Touch_Detection(uint16_t x, uint16_t y)
 			}else if((y > ON_OFF_BUTTON_YPOS) && (y < ON_OFF_BUTTON_YPOS + ON_OFF_BUTTON_HEIGHT) &&
 							    	(x > ON_OFF_BUTTON_XPOS) && (x < ON_OFF_BUTTON_XPOS + ON_OFF_BUTTON_WIDTH))
 			{
-			//		HAL_Delay(30);
 					Display_On_Off_Info_Reverb();
 			}
 	
@@ -208,7 +207,7 @@ void Display_On_Off_Info_Reverb(void)
 	
 }
 
-void Reverb(void)
+void Reverb(uint16_t *data)
 {
 		if(is_active_reverb == ACTIVE)
 	{

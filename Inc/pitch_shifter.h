@@ -20,4 +20,4 @@ void Display_PitchShifter_Window(void);
 void PitchShifterWindow_Touch_Detection(uint16_t x, uint16_t y);
 void Display_Current_Parametres_PitchShifter(void);
 void Display_On_Off_Info_PitchShifter(void);
-void PitchShifter(void);
+void PitchShifter(uint16_t *data);

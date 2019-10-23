@@ -1,6 +1,6 @@
 #include "volume.h"
 
-uint8_t current_volume = 50;
+uint8_t current_volume = 70;
 uint8_t current_volume_temp;
 char current_volume_str[3];
 

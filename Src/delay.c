@@ -136,7 +136,6 @@ void DelayWindow_Touch_Detection(uint16_t x, uint16_t y)
 			}else if((y > ON_OFF_BUTTON_YPOS) && (y < ON_OFF_BUTTON_YPOS + ON_OFF_BUTTON_HEIGHT) &&
 							    	(x > ON_OFF_BUTTON_XPOS) && (x < ON_OFF_BUTTON_XPOS + ON_OFF_BUTTON_WIDTH))
 			{
-				//	HAL_Delay(30);
 					Display_On_Off_Info_Delay();
 			}
 	}
@@ -152,7 +151,6 @@ void Display_Current_Parametres_Delay(void)
 		BSP_LCD_SetFont(&Font24);
 		sprintf(delay_str_delay, "%d", delay_delay);
 	  BSP_LCD_DisplayStringAt(DELAY_DOWN_BUTTON_XPOS+PARAM_BUTTON_WIDTH+30, PARAM1_BUTTON_YPOS+(PARAM_BUTTON_HEIGHT/2)-8, (uint8_t *)delay_str_delay, LEFT_MODE);
-		HAL_Delay(10);
 		sprintf(gain_str_delay, "%.2f", gain_delay);
 		BSP_LCD_DisplayStringAt(GAIN_DOWN_BUTTON_XPOS+PARAM_BUTTON_WIDTH+25, PARAM1_BUTTON_YPOS+(PARAM_BUTTON_HEIGHT/2)-8, (uint8_t *)gain_str_delay, LEFT_MODE);
 	
@@ -183,7 +181,7 @@ void Display_On_Off_Info_Delay(void)
 		}
 	} 
 }
-void Delay(void)
+void Delay(uint16_t *data)
 {
 			if(is_active_delay == ACTIVE)
 	{

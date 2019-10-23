@@ -1,9 +1,11 @@
 #include "overdrive.h"
+#include <stdlib.h>
 
 double clip_value_overdrive = 0.5;
 char clip_value_str_overdrive[3];
 uint8_t is_active_overdrive = NOT_ACTIVE;
 extern uint8_t is_button_active;
+
 
 
 void Display_Overdrive_Window(void)
@@ -123,10 +125,26 @@ void Display_On_Off_Info_Overdrive()
 }
 
 
-void Overdrive(void)
+void Overdrive(uint16_t *data)
 {
 		if(is_active_overdrive == ACTIVE)
 	{
+			uint32_t i;
+			uint16_t overdrive_temp = clip_value_overdrive * 65535;
+			for(i = 0; i < AUDIO_BLOCK_SIZE; i++)
+			{
+				 if ((data[i]) <= -(2/3)*overdrive_temp)
+						data[i] = -overdrive_temp;
+				else if (data[i] <= -(1/3)*overdrive_temp)
+            data[i] = data[i]*(-3+(2+3*data[i]/overdrive_temp)^2)/3;
+        else if (data[i] <= (1/3)*data[i])
+            data[i]= 2*data[i];
+         else if (data[i] <= (2/3)*data[i])
+            data[i]= data[i]*(3-(2-3*data[i]/data[i])^2)/3;
+				 else
+						data[i] = overdrive_temp; 
+				}
+			} 
 		
 	}
-}
+

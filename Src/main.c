@@ -32,6 +32,7 @@
 #include "pitch_shifter.h"
 #include "tremolo.h"
 #include "flanger.h"
+#include "tim.h"
 
 /* USER CODE END Includes */
 
@@ -62,9 +63,7 @@ typedef enum
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define AUDIO_BLOCK_SIZE   ((uint32_t)512)
-#define AUDIO_BUFFER_IN    AUDIO_REC_START_ADDR     /* In SDRAM */
-#define AUDIO_BUFFER_OUT   (AUDIO_REC_START_ADDR + (AUDIO_BLOCK_SIZE * 2)) /* In SDRAM */
+
 
 
 /* USER CODE END PD */
@@ -80,6 +79,7 @@ CRC_HandleTypeDef hcrc;
 
 DMA2D_HandleTypeDef hdma2d;
 
+TIM_HandleTypeDef htim10;
 
 /* USER CODE BEGIN PV */
 
@@ -90,11 +90,13 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CRC_Init(void);
 static void MX_DMA2D_Init(void);
+static void MX_TIM10_Init(void);
 /* USER CODE BEGIN PFP */
 void Multieffect(void);
 void LCD_Multieffect_Init(void);
 void Current_Window_Select(void);
 void MainWindow_Touch_Detection(void);
+void Signal_Processing(uint16_t *data);
 
 /* USER CODE END PFP */
 
@@ -117,6 +119,9 @@ char button_names[8][14] = {
 			"Pitch Shifter"
 };
 
+
+uint16_t data_processed[AUDIO_BLOCK_SIZE];
+uint16_t sample;
 uint8_t is_button_active= BUTTON_NOT_ACTIVE;
 /* USER CODE END 0 */
 
@@ -132,6 +137,7 @@ int main(void)
 							SCB_EnableICache();
 							SCB_EnableDCache();
   /* USER CODE END 1 */
+  
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -153,15 +159,17 @@ int main(void)
   MX_GPIO_Init();
   MX_CRC_Init();
   MX_DMA2D_Init();
+  MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
 
-BSP_SDRAM_Init(); /* Initializes the SDRAM device */
-__HAL_RCC_CRC_CLK_ENABLE(); /* Enable the CRC Module */
+	BSP_SDRAM_Init(); /* Initializes the SDRAM device */
+	__HAL_RCC_CRC_CLK_ENABLE(); /* Enable the CRC Module */
 
-BSP_LED_Init(LED1);
+	BSP_LED_Init(LED1);
 /* Configure the User Button in GPIO Mode */
-BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_GPIO);
-LCD_Multieffect_Init();
+	BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_GPIO);
+	LCD_Multieffect_Init();
+
 
   /* USER CODE END 2 */
 
@@ -170,6 +178,7 @@ LCD_Multieffect_Init();
   while (1)
   {
     /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
 			Multieffect();
   }
@@ -294,6 +303,37 @@ static void MX_DMA2D_Init(void)
 }
 
 /**
+  * @brief TIM10 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM10_Init(void)
+{
+
+  /* USER CODE BEGIN TIM10_Init 0 */
+
+  /* USER CODE END TIM10_Init 0 */
+
+  /* USER CODE BEGIN TIM10_Init 1 */
+
+  /* USER CODE END TIM10_Init 1 */
+  htim10.Instance = TIM10;
+  htim10.Init.Prescaler = 20000;
+  htim10.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim10.Init.Period = 1000;
+  htim10.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim10.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim10) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM10_Init 2 */
+
+  /* USER CODE END TIM10_Init 2 */
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -369,6 +409,9 @@ void Multieffect(void)
   /* Inicjalizacja buforów SDRAM */
   memset((uint16_t*)AUDIO_BUFFER_IN, 0, AUDIO_BLOCK_SIZE*2);
   memset((uint16_t*)AUDIO_BUFFER_OUT, 0, AUDIO_BLOCK_SIZE*2);
+
+  memset(data_processed, 0, AUDIO_BLOCK_SIZE);
+	
   audio_rec_buffer_state = BUFFER_OFFSET_NONE;
 
   /* Rozpoczecie nagrywania */
@@ -377,6 +420,7 @@ void Multieffect(void)
   /* Odtworzenie */
   BSP_AUDIO_OUT_SetAudioFrameSlot(SAI_SLOTACTIVE_0);
   BSP_AUDIO_OUT_Play((uint16_t*)AUDIO_BUFFER_OUT, AUDIO_BLOCK_SIZE * 2);
+	HAL_TIM_Base_Start_IT(&htim10);
 	
 	 while (1)
   {
@@ -386,10 +430,17 @@ void Multieffect(void)
 			HAL_Delay(1);
     }
     audio_rec_buffer_state = BUFFER_OFFSET_NONE;
+		
     /* Skopiuj nagrany blok */
-    memcpy((uint16_t *)(AUDIO_BUFFER_OUT),
-           (uint16_t *)(AUDIO_BUFFER_IN),
-           AUDIO_BLOCK_SIZE);
+		memcpy(data_processed, (uint16_t *)(AUDIO_BUFFER_IN), AUDIO_BLOCK_SIZE);
+		
+		/* Przetwórz próbki sygnalu wlaczonymi efektami */
+		Signal_Processing(data_processed);
+		
+		/* Odtworz sygnal wyjsciowy */
+		memcpy((uint16_t *)(AUDIO_BUFFER_OUT),
+									data_processed,
+									AUDIO_BLOCK_SIZE);
 
     /* Czekaj do konca nagrania bloku */
     while(audio_rec_buffer_state != BUFFER_OFFSET_FULL)
@@ -397,27 +448,17 @@ void Multieffect(void)
 			HAL_Delay(1);
     }
     audio_rec_buffer_state = BUFFER_OFFSET_NONE;
+		
     /* Skopiuj 2gi nagrany blok */
-    memcpy((uint16_t *)(AUDIO_BUFFER_OUT + (AUDIO_BLOCK_SIZE)),
-           (uint16_t *)(AUDIO_BUFFER_IN + (AUDIO_BLOCK_SIZE)),
-           AUDIO_BLOCK_SIZE);
+		memcpy(data_processed, (uint16_t *)(AUDIO_BUFFER_IN + (AUDIO_BLOCK_SIZE)), AUDIO_BLOCK_SIZE);
 		
-		/* Sprawdz jaki jest stan wyswietlacza dotykowego oraz czy uzytkownik go dotknal */
-		BSP_TS_GetState(&ts);
-		while(ts.touchDetected)
-		{
-				BSP_AUDIO_OUT_SetMute(AUDIO_MUTE_ON);
-				/* Pobierz koordynaty dotknietego ekranu */
-			  x = ts.touchX[0];
-        y = ts.touchY[0];
-				/* Sprawdz, które okno jest obecnie aktywne */
-				Current_Window_Select();
-				is_button_active = BUTTON_ACTIVE;
-				BSP_TS_GetState(&ts);
-		}
-				BSP_AUDIO_OUT_SetMute(AUDIO_MUTE_OFF);
-				is_button_active = BUTTON_NOT_ACTIVE;
+		/* Przetwórz próbki sygnalu wlaczonymi efektami */
+		Signal_Processing(data_processed);
 		
+		/* Odtworz sygnal wyjsciowy */
+		memcpy((uint16_t *)(AUDIO_BUFFER_OUT + (AUDIO_BLOCK_SIZE)),
+									data_processed,
+									AUDIO_BLOCK_SIZE);
   }
 }
 
@@ -511,6 +552,17 @@ void MainWindow_Touch_Detection(void)
 }
 
 
+void Signal_Processing(uint16_t *data)
+{
+	PitchShifter(data);
+	Overdrive(data);
+	Chorus(data);
+	Flanger(data);
+	Tremolo(data);
+	Delay(data);
+	Reverb(data);
+}
+
 
 /**
   * @brief Manages the DMA Transfer complete interrupt.
@@ -553,6 +605,32 @@ void BSP_AUDIO_IN_Error_CallBack(void)
     return;
   }
 }
+
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{		
+		if(htim->Instance == TIM10)
+		{
+				/* Sprawdz jaki jest stan wyswietlacza dotykowego oraz czy uzytkownik go dotknal */
+				BSP_TS_GetState(&ts);
+				if(ts.touchDetected)
+				{
+						BSP_AUDIO_OUT_SetMute(AUDIO_MUTE_ON);
+						/* Pobierz koordynaty dotknietego ekranu */
+						x = ts.touchX[0];
+						y = ts.touchY[0];
+						/* Sprawdz, które okno jest obecnie aktywne */
+						Current_Window_Select();
+						is_button_active = BUTTON_ACTIVE;
+						BSP_AUDIO_OUT_SetMute(AUDIO_MUTE_OFF);
+				}
+				else
+				{
+						is_button_active = BUTTON_NOT_ACTIVE;
+				}
+		}
+}
+
 
 /* USER CODE END 4 */
 

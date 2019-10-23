@@ -71,3 +71,4 @@ stm_multiefekt_drugie_podejscie\main.o: ../Inc/tremolo.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/GUI.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/flanger.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/GUI.h
+stm_multiefekt_drugie_podejscie\main.o: ../Inc/tim.h

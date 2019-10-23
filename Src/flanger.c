@@ -134,7 +134,7 @@ void FlangerWindow_Touch_Detection(uint16_t x, uint16_t y)
 									BSP_LCD_DisplayStringAt(VERSION_BUTTON_XPOS+10, PARAM2_BUTTON_YPOS+(VERSION_BUTTON_HEIGHT/3)-1, (uint8_t *)"SOI", LEFT_MODE);			
 									version_flanger = SOI	;
 					}
-				} /* Sprawdzenie przycisku zwiekszenia parametru Gain */	
+				} /* Sprawdzenie przycisku zwiekszenia parametru Rate */	
 			}else if((x > RATE2_UP_BUTTON_XPOS) && (x < RATE2_UP_BUTTON_XPOS +PARAM_BUTTON_WIDTH))
 				{
 					if(rate_flanger<1)
@@ -142,7 +142,7 @@ void FlangerWindow_Touch_Detection(uint16_t x, uint16_t y)
 						rate_flanger +=0.01;
 						Display_Current_Parametres_Flanger();
 					} 
-				/* Sprawdzenie przycisku zmniejszenia parametru Gain */		
+				/* Sprawdzenie przycisku zmniejszenia parametru Rate */		
 				}else if((x > RATE2_DOWN_BUTTON_XPOS) && (x < RATE2_DOWN_BUTTON_XPOS + PARAM_BUTTON_WIDTH))
 				{
 				if(rate_flanger>0.01)
@@ -161,11 +161,8 @@ void FlangerWindow_Touch_Detection(uint16_t x, uint16_t y)
 			}else if((y > ON_OFF_BUTTON_YPOS) && (y < ON_OFF_BUTTON_YPOS + ON_OFF_BUTTON_HEIGHT) &&
 							    	(x > ON_OFF_BUTTON_XPOS) && (x < ON_OFF_BUTTON_XPOS + ON_OFF_BUTTON_WIDTH))
 			{
-			//		HAL_Delay(30);
 					Display_On_Off_Info_Flanger();
-	
-		}
-	
+			}
 }
 
 void Display_Current_Parametres_Flanger(void)
@@ -179,10 +176,8 @@ void Display_Current_Parametres_Flanger(void)
 		
 		sprintf(delay_str_flanger, "%d", delay_flanger);
 	  BSP_LCD_DisplayStringAt(DELAY_DOWN_BUTTON_XPOS+PARAM_BUTTON_WIDTH+30, PARAM1_BUTTON_YPOS+(PARAM_BUTTON_HEIGHT/2)-8, (uint8_t *)delay_str_flanger, LEFT_MODE);
-		HAL_Delay(10);
 		sprintf(gain_str_flanger, "%.2f", gain_flanger);
 		BSP_LCD_DisplayStringAt(GAIN_DOWN_BUTTON_XPOS+PARAM_BUTTON_WIDTH+25, PARAM1_BUTTON_YPOS+(PARAM_BUTTON_HEIGHT/2)-8, (uint8_t *)gain_str_flanger, LEFT_MODE);
-		HAL_Delay(10);
 		sprintf(rate_str_flanger, "%.2f", rate_flanger);
 		BSP_LCD_DisplayStringAt(RATE2_DOWN_BUTTON_XPOS+PARAM_BUTTON_WIDTH+25, PARAM2_BUTTON_YPOS+(PARAM_BUTTON_HEIGHT/2)-8, (uint8_t *)rate_str_flanger, LEFT_MODE);
 }
@@ -214,7 +209,7 @@ void Display_On_Off_Info_Flanger(void)
 	
 }
 
-void Flanger(void)
+void Flanger(uint16_t *data)
 {
 		if(is_active_flanger == ACTIVE)
 	{

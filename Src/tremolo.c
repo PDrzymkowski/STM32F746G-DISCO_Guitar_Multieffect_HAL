@@ -76,7 +76,7 @@ void TremoloWindow_Touch_Detection(uint16_t x, uint16_t y)
 {
 				if((y >PARAM1_BUTTON_YPOS) && (y <PARAM1_BUTTON_YPOS+ PARAM_BUTTON_HEIGHT))
 		{
-				/* Sprawdzenie przycisku zwiekszenia parametru Delay */	
+				/* Sprawdzenie przycisku zwiekszenia parametru Rate */	
 				if((x > RATE1_UP_BUTTON_XPOS) && (x < RATE1_UP_BUTTON_XPOS +PARAM_BUTTON_WIDTH))
 				{
 					if(rate_tremolo<20)
@@ -84,7 +84,7 @@ void TremoloWindow_Touch_Detection(uint16_t x, uint16_t y)
 						rate_tremolo +=1;
 						Display_Current_Parametres_Tremolo();
 					}
-				/* Sprawdzenie przycisku zmnieszenia parametru Delay */	
+				/* Sprawdzenie przycisku zmnieszenia parametru Rate */	
 				}else if((x > RATE1_DOWN_BUTTON_XPOS) && (x < RATE1_DOWN_BUTTON_XPOS + PARAM_BUTTON_WIDTH))
 				{
 				if(rate_tremolo>0)
@@ -92,7 +92,7 @@ void TremoloWindow_Touch_Detection(uint16_t x, uint16_t y)
 						rate_tremolo -=1;
 						Display_Current_Parametres_Tremolo();
 					}
-				/* Sprawdzenie przycisku zwiekszenia parametru Gain */		
+				/* Sprawdzenie przycisku zwiekszenia parametru Depth */		
 				}	else if((x > DEPTH_UP_BUTTON_XPOS) && (x < DEPTH_UP_BUTTON_XPOS +PARAM_BUTTON_WIDTH))
 				{
 					if(depth_tremolo<1)
@@ -100,7 +100,7 @@ void TremoloWindow_Touch_Detection(uint16_t x, uint16_t y)
 						depth_tremolo +=0.01;
 						Display_Current_Parametres_Tremolo();
 					} 
-				/* Sprawdzenie przycisku zmniejszenia parametru Gain */		
+				/* Sprawdzenie przycisku zmniejszenia parametru Depth */		
 				}else if((x > DEPTH_DOWN_BUTTON_XPOS) && (x < DEPTH_DOWN_BUTTON_XPOS + PARAM_BUTTON_WIDTH))
 				{
 				if(depth_tremolo>0.01)
@@ -112,7 +112,7 @@ void TremoloWindow_Touch_Detection(uint16_t x, uint16_t y)
 				}
 		 }else if((y >PARAM2_BUTTON_YPOS) && (y <PARAM2_BUTTON_YPOS+ SHAPE_BUTTON_HEIGHT))
 		{
-			/* Sprawdzenie przycisku zmiany wersji efektu */	
+			/* Sprawdzenie przycisku zmiany ksztaltu sygnalu modulujacego */	
 			if((x > SHAPE_BUTTON_XPOS) && (x < SHAPE_BUTTON_XPOS + SHAPE_BUTTON_WIDTH))
 				{
 						if(is_button_active==BUTTON_NOT_ACTIVE)
@@ -144,7 +144,6 @@ void TremoloWindow_Touch_Detection(uint16_t x, uint16_t y)
 			}else if((y > ON_OFF_BUTTON_YPOS) && (y < ON_OFF_BUTTON_YPOS + ON_OFF_BUTTON_HEIGHT) &&
 							    	(x > ON_OFF_BUTTON_XPOS) && (x < ON_OFF_BUTTON_XPOS + ON_OFF_BUTTON_WIDTH))
 			{
-			//		HAL_Delay(30);
 					Display_On_Off_Info_Tremolo();
 			}
 		}
@@ -160,7 +159,6 @@ void Display_Current_Parametres_Tremolo(void)
 		BSP_LCD_SetFont(&Font24);
 		sprintf(rate_str_tremolo, "%d", rate_tremolo);
 	  BSP_LCD_DisplayStringAt(RATE1_DOWN_BUTTON_XPOS+PARAM_BUTTON_WIDTH+30, PARAM1_BUTTON_YPOS+(PARAM_BUTTON_HEIGHT/2)-8, (uint8_t *)rate_str_tremolo, LEFT_MODE);
-		HAL_Delay(10);
 		sprintf(depth_str_tremolo, "%.2f", depth_tremolo);
 		BSP_LCD_DisplayStringAt(DEPTH_DOWN_BUTTON_XPOS+PARAM_BUTTON_WIDTH+25, PARAM1_BUTTON_YPOS+(PARAM_BUTTON_HEIGHT/2)-8, (uint8_t *)depth_str_tremolo, LEFT_MODE);
 }
@@ -191,7 +189,7 @@ void Display_On_Off_Info_Tremolo(void)
 	} 
 }
 
-void Tremolo(void)
+void Tremolo(uint16_t *data)
 {
 		if(is_active_tremolo == ACTIVE)
 	{
