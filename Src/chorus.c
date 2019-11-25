@@ -268,10 +268,47 @@ void Display_On_Off_Info_Chorus(void)
 	} 
 }
 
-void Chorus(uint16_t *data)
+void Chorus(uint16_t *data_in, uint16_t* data_out, uint32_t count)
 {
-	if(is_active_chorus == ACTIVE)
-	{
-		
-	}
+		if(is_active_chorus == ACTIVE)
+		{
+				uint16_t max_delay = (delay_chorus * 44100)/ 1000;
+				uint16_t chorus_period1 = 44100 / rate1_chorus;
+				uint16_t chorus_period2 = 44100 / rate2_chorus;
+				uint16_t n;
+				uint16_t delay_samples1;
+				uint16_t delay_samples2;
+				static uint16_t chorus_n1 = 0;
+				static uint16_t chorus_n2 = 0;
+				double frequency_change1 = (double)(rate1_chorus)/44100;
+				double frequency_change2 = (double)(rate2_chorus)/44100;
+				int16_t curr_sample;
+				int16_t prev_sample1;
+				int16_t prev_sample2;		
+				int16_t out_sample;
+				
+
+				for(n = count*AUDIO_BLOCK_SIZE/2; n < (count+1)*AUDIO_BLOCK_SIZE/2; n++)
+				{								
+						curr_sample = (int16_t)data_out[n];
+						
+						delay_samples1 = 1 + (max_delay/2)*(1-arm_cos_f32(2* PI* frequency_change1*chorus_n1));
+						delay_samples2 = 1 + (max_delay/2)*(1-arm_cos_f32(2* PI* frequency_change2*chorus_n2));
+						
+						if(version_chorus == SOI)
+						{
+								prev_sample1 = data_in[(n + AUDIO_BUFFER_SIZE - delay_samples1) % AUDIO_BUFFER_SIZE];
+								prev_sample2 = data_in[(n + AUDIO_BUFFER_SIZE - delay_samples2) % AUDIO_BUFFER_SIZE];
+						}else
+						{
+								prev_sample1 = data_out[(n + AUDIO_BUFFER_SIZE - delay_samples1) % AUDIO_BUFFER_SIZE];
+								prev_sample2 = data_out[(n + AUDIO_BUFFER_SIZE - delay_samples2) % AUDIO_BUFFER_SIZE];
+						}
+						out_sample = (curr_sample + depth1_chorus*prev_sample1 +depth2_chorus*prev_sample2)/(1+depth1_chorus + depth2_chorus);
+						data_out[n] = (uint16_t) (out_sample);
+
+						chorus_n1 = (chorus_n1 + chorus_period1 + 1) % chorus_period1;
+						chorus_n2 = (chorus_n2 + chorus_period2 + 1) % chorus_period2;
+				}
+		}
 }

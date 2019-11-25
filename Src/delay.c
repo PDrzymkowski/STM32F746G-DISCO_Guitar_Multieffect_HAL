@@ -9,6 +9,7 @@ uint8_t is_active_delay = NOT_ACTIVE;
 extern uint8_t is_button_active;
 
 
+
 void Display_Delay_Window(void)
 {
 		BSP_LCD_Clear(LCD_COLOR_LIGHTGRAY);
@@ -168,7 +169,7 @@ void Display_On_Off_Info_Delay(void)
 				BSP_LCD_FillRect(ON_OFF_BUTTON_XPOS, ON_OFF_BUTTON_YPOS, ON_OFF_BUTTON_WIDTH, ON_OFF_BUTTON_HEIGHT);
 				BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
 				BSP_LCD_DisplayStringAt(ON_OFF_BUTTON_XPOS-80, ON_OFF_BUTTON_YPOS+(ON_OFF_BUTTON_HEIGHT/3), (uint8_t *)"WYLACZONY", LEFT_MODE);
-				is_active_delay = NOT_ACTIVE;
+				is_active_delay = NOT_ACTIVE; 
 		}else if(is_active_delay == NOT_ACTIVE)
 		{
 				BSP_LCD_SetTextColor(LCD_COLOR_GREEN);
@@ -181,11 +182,32 @@ void Display_On_Off_Info_Delay(void)
 		}
 	} 
 }
-void Delay(uint16_t *data)
+void Delay(uint16_t *data_in, uint16_t* data_out, uint32_t count)
 {
-			if(is_active_delay == ACTIVE)
-	{
-	}
+		uint32_t delay_samples = (delay_delay*44100)/1000;
+		uint16_t n = 0;
+		int16_t curr_sample = 0;
+		int16_t prev_sample = 0;
+		int16_t out_sample = 0;
+	
+			int16_t curr_sample2 = 0;
+		int16_t prev_sample2 = 0;
+		int16_t out_sample2 = 0;
+
+		if(is_active_delay == ACTIVE)
+		{
+						for(n = count*AUDIO_BLOCK_SIZE/2; n < (count+1)*AUDIO_BLOCK_SIZE/2; n++)
+					{								
+						curr_sample =  (int16_t)data_out[n];
+						if(version_delay == SOI)
+							prev_sample =  (int16_t)data_in[(n + AUDIO_BUFFER_SIZE - delay_samples) % AUDIO_BUFFER_SIZE];
+						else
+							prev_sample =  (int16_t)data_out[(n + AUDIO_BUFFER_SIZE - delay_samples) % AUDIO_BUFFER_SIZE];
+						
+						out_sample = (curr_sample + gain_delay*prev_sample)/(1+gain_delay);
+						data_out[n] = (uint16_t) (out_sample);									
+					} 
+		}
 }
 
 

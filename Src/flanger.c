@@ -9,6 +9,7 @@ double gain_flanger = 0.5;
 char gain_str_flanger[3];
 uint8_t version_flanger = SOI;
 uint8_t is_active_flanger = NOT_ACTIVE;
+uint16_t flanger_n = 0;
 extern uint8_t is_button_active;
 
 
@@ -209,10 +210,33 @@ void Display_On_Off_Info_Flanger(void)
 	
 }
 
-void Flanger(uint16_t *data)
+void Flanger(uint16_t *data_in, uint16_t* data_out, uint32_t count)
 {
 		if(is_active_flanger == ACTIVE)
-	{
+		{
+			uint16_t max_delay = (delay_flanger * 44100)/ 1000;
+			uint16_t flanger_period = 44100 / rate_flanger;
+			uint16_t n;
+			uint16_t delay_samples;
+			double frequency_change = (double)(rate_flanger)/44100;
+			int16_t curr_sample;
+			int16_t prev_sample;
+			int16_t out_sample;
+			
+
+				for(n = count*AUDIO_BLOCK_SIZE/2; n < (count+1)*AUDIO_BLOCK_SIZE/2; n++)
+				{								
+					curr_sample = (int16_t)data_out[n];	
+					delay_samples = 1 + (max_delay/2)*(1-arm_cos_f32(2* PI* frequency_change*flanger_n));
+					
+					if(version_flanger == SOI)
+							prev_sample = data_in[(n + AUDIO_BUFFER_SIZE - delay_samples) % AUDIO_BUFFER_SIZE];
+					else
+						prev_sample = data_out[(n + AUDIO_BUFFER_SIZE - delay_samples) % AUDIO_BUFFER_SIZE];
 		
-	}
+					out_sample = (curr_sample + gain_flanger*prev_sample)/(1+gain_flanger);
+					data_out[n] = (uint16_t) (out_sample);
+					flanger_n = (flanger_n + flanger_period + 1) % flanger_period;
+				}
+	 }
 }

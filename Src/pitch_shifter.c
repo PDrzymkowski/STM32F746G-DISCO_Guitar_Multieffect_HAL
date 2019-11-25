@@ -1,4 +1,5 @@
 #include "pitch_shifter.h"
+#include "math.h"
 
 
 double pitch_pitchshifter = 0;
@@ -221,6 +222,13 @@ void PitchShifter(uint16_t *data)
 {
 		if(is_active_pitchshifter == ACTIVE)
 	{
-		
+		double alpha = pow(2, (double)(pitch_pitchshifter)/12);
+		uint16_t N = AUDIO_BLOCK_SIZE;
+		uint16_t Ra = N/4;
+		uint16_t Rs = alpha*Ra;
+		//TODO okno hanninga i omega
+	//	h = hann(2*N+1);       % okno hanninga (symetryczne)
+	// h = h(2:2:end);
+		// Omega = ((0:N-1)*2*pi/N)';
 	}
 }

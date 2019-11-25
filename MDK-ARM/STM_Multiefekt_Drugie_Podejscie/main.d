@@ -54,9 +54,13 @@ stm_multiefekt_drugie_podejscie\main.o: ..\HAL Drivers Discovery\stm32746g_disco
 stm_multiefekt_drugie_podejscie\main.o: ..\Audio Codec Files\wm8994\wm8994.h
 stm_multiefekt_drugie_podejscie\main.o: ..\Audio Codec Files\wm8994\audio.h
 stm_multiefekt_drugie_podejscie\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+stm_multiefekt_drugie_podejscie\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 stm_multiefekt_drugie_podejscie\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/volume.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/GUI.h
+stm_multiefekt_drugie_podejscie\main.o: ../Drivers/CMSIS/Include/arm_math.h
+stm_multiefekt_drugie_podejscie\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\float.h
+stm_multiefekt_drugie_podejscie\main.o: ../Drivers/CMSIS/Include/arm_common_tables.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/overdrive.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/GUI.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/chorus.h

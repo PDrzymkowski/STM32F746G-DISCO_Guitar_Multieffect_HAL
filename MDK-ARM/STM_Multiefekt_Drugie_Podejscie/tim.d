@@ -55,3 +55,4 @@ stm_multiefekt_drugie_podejscie\tim.o: ..\HAL Drivers Discovery\stm32746g_discov
 stm_multiefekt_drugie_podejscie\tim.o: ..\Audio Codec Files\wm8994\wm8994.h
 stm_multiefekt_drugie_podejscie\tim.o: ..\Audio Codec Files\wm8994\audio.h
 stm_multiefekt_drugie_podejscie\tim.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+stm_multiefekt_drugie_podejscie\tim.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h

@@ -10,6 +10,7 @@ uint8_t pre_delay2_reverb = 10;
 char pre_delay2_str_reverb[3];
 uint8_t is_active_reverb = NOT_ACTIVE;
 extern uint8_t is_button_active;
+uint16_t testt;
 
 
 void Display_Reverb_Window(void)
@@ -204,13 +205,99 @@ void Display_On_Off_Info_Reverb(void)
 				is_active_reverb= ACTIVE;	
 		}
 	} 
-	
 }
 
-void Reverb(uint16_t *data)
+
+int16_t Comb_Out(uint16_t *data, uint16_t n, uint16_t D_Comb_Out) {
+	
+	return ( (int16_t)data[n] - depth_reverb * (int16_t)data[ ((uint16_t)(n - D_Comb_Out)) % AUDIO_BUFFER_SIZE ] )/(1+depth_reverb);
+}
+
+int16_t Comb_Sect_Out(uint16_t *data, uint16_t n, uint16_t *D_Comb_Out, uint16_t D_Comb_Sect_Out) {
+	
+	return (Comb_Out(data, n, D_Comb_Out[0] + D_Comb_Sect_Out) +
+						Comb_Out(data, n, D_Comb_Out[1] + D_Comb_Sect_Out) +
+						Comb_Out(data, n, D_Comb_Out[2] + D_Comb_Sect_Out) +
+						Comb_Out(data, n, D_Comb_Out[3] + D_Comb_Sect_Out) ) / 4;
+}
+
+int16_t All_Pass_Out(uint16_t *data, uint16_t n, uint16_t *D_Comb_Out, uint16_t D_Comb_Sect_Out, uint16_t D_All_Pass_Out) {
+	
+	int16_t All_Pass_Out_D5_Val = ((-7) * Comb_Sect_Out(data, n, D_Comb_Out, D_Comb_Sect_Out + D_All_Pass_Out)/10 + Comb_Sect_Out(data, n, D_Comb_Out, D_Comb_Sect_Out + D_Comb_Sect_Out+ D_All_Pass_Out))/(1+(7/10));
+	// all_pass_out(i-D5) = -a5 * comb_sect_out(i-D5) + comb_sect_out(i-D5-D5);
+	
+	return ((-7)*Comb_Sect_Out(data, n, D_Comb_Out, D_All_Pass_Out)/10 + Comb_Sect_Out(data, n, D_Comb_Out, D_Comb_Sect_Out+  D_All_Pass_Out) + (-7) * All_Pass_Out_D5_Val/10) / (1+ (7/10)+(7/10));
+
+}
+
+
+
+void Reverb(uint16_t *data_in, uint16_t* data_out, uint32_t count)
 {
-		if(is_active_reverb == ACTIVE)
+	if(is_active_reverb == ACTIVE)
 	{
+		uint16_t n;
+		uint16_t D_n[6];	
+		double a_n[2];
 		
+		int16_t out_sample;
+		static int16_t comb_1_out[COMB_1_OUT_MAX_SIZE] = {0};
+		static int16_t comb_2_out[COMB_2_OUT_MAX_SIZE] = {0};
+		static int16_t comb_3_out[COMB_3_OUT_MAX_SIZE] = {0};
+		static int16_t comb_4_out[COMB_4_OUT_MAX_SIZE] = {0};
+		static int16_t comb_sect_out[COMB_SECT_OUT_MAX_SIZE] = {0};
+		static int16_t all_pass_out[ALL_PASS_OUT_MAX_SIZE] = {0};
+		
+		static uint16_t comb_1_out_n = 0;
+		static uint16_t comb_2_out_n = 0;
+		static uint16_t comb_3_out_n = 0;
+		static uint16_t comb_4_out_n = 0;
+		static uint16_t comb_sect_out_n = 0;
+		static uint16_t all_pass_out_n = 0;
+		static uint16_t testt2;
+	
+		D_n[0] = (room_size_reverb*44100)/1000;
+		D_n[1] = (room_size_reverb*44100*1.17)/1000;
+		D_n[2] = (room_size_reverb*44100*1.33)/1000;
+		D_n[3] = (room_size_reverb*44100*1.5)/1000;
+		D_n[4] = (pre_delay1_reverb*44100)/1000;
+		D_n[5] = (pre_delay2_reverb*44100)/1000;
+	
+		a_n[0] = depth_reverb;
+		a_n[1] = 0.7;
+		
+		uint32_t xd;
+		testt = D_n[5];
+	
+		for(n = count*AUDIO_BLOCK_SIZE/2; n < (count+1)*AUDIO_BLOCK_SIZE/2; n++)
+		{								
+			
+			comb_1_out[comb_1_out_n] = ((int16_t)data_out[n] + a_n[0]*comb_1_out[(comb_1_out_n + COMB_1_OUT_MAX_SIZE - D_n[0]) % COMB_1_OUT_MAX_SIZE])/(1+a_n[0]);
+			comb_2_out[comb_2_out_n] = ((int16_t)data_out[n] + a_n[0]*comb_2_out[(comb_2_out_n + COMB_2_OUT_MAX_SIZE - D_n[1]) % COMB_2_OUT_MAX_SIZE])/(1+a_n[0]);
+			comb_3_out[comb_3_out_n] = ((int16_t)data_out[n] + a_n[0]*comb_3_out[(comb_3_out_n + COMB_3_OUT_MAX_SIZE - D_n[2]) % COMB_3_OUT_MAX_SIZE])/(1+a_n[0]);
+			comb_4_out[comb_1_out_n] = ((int16_t)data_out[n] + a_n[0]*comb_4_out[(comb_4_out_n + COMB_4_OUT_MAX_SIZE - D_n[3]) % COMB_4_OUT_MAX_SIZE])/(1+a_n[0]); 
+	
+			comb_sect_out[comb_sect_out_n] = (comb_1_out[comb_1_out_n] + 	comb_2_out[comb_2_out_n] + 	comb_3_out[comb_3_out_n] + 	comb_4_out[comb_4_out_n])/4;
+			
+			all_pass_out[all_pass_out_n] =((((-1)*7) * comb_sect_out[comb_sect_out_n]/10) 
+														+  comb_sect_out[(comb_sect_out_n + COMB_SECT_OUT_MAX_SIZE - D_n[4]) % COMB_SECT_OUT_MAX_SIZE] 
+														+	all_pass_out[(all_pass_out_n + ALL_PASS_OUT_MAX_SIZE - D_n[4]) % ALL_PASS_OUT_MAX_SIZE])/(1+a_n[1] + a_n[1]); 		
+		//		all_pass_out[all_pass_out_n] = n;
+			
+			out_sample = ((((-1)*7) * all_pass_out[all_pass_out_n]/10)
+														+ all_pass_out[(all_pass_out_n + ALL_PASS_OUT_MAX_SIZE - D_n[5]) % ALL_PASS_OUT_MAX_SIZE]
+														+	data_out[(n + AUDIO_BUFFER_SIZE - D_n[5]) % AUDIO_BUFFER_SIZE])/(1+a_n[1]+a_n[1]); 	
+		
+			testt = (uint16_t) (out_sample);
+	
+			data_out[n] = (uint16_t) out_sample;
+			
+			comb_1_out_n = (comb_1_out_n + 1) % D_n[0];
+			comb_2_out_n = (comb_2_out_n + 1) % D_n[1];
+			comb_3_out_n = (comb_3_out_n + 1) % D_n[2];
+			comb_4_out_n = (comb_4_out_n + 1) % D_n[3];
+			comb_sect_out_n = (comb_sect_out_n + 1) % D_n[4];
+			all_pass_out_n = (all_pass_out_n + 1) % D_n[5];
+		}
 	}
 }

@@ -6,8 +6,11 @@ double depth_tremolo = 0.5;
 char depth_str_tremolo[3];
 uint8_t shape_tremolo = SIN;
 uint8_t is_active_tremolo = NOT_ACTIVE;
-extern uint8_t is_button_active;
 
+extern uint8_t is_button_active;
+uint16_t test = 0;
+uint16_t test2 = 0;
+double test3 = 0;
 
 void Display_Tremolo_Window(void)
 {
@@ -163,6 +166,25 @@ void Display_Current_Parametres_Tremolo(void)
 		BSP_LCD_DisplayStringAt(DEPTH_DOWN_BUTTON_XPOS+PARAM_BUTTON_WIDTH+25, PARAM1_BUTTON_YPOS+(PARAM_BUTTON_HEIGHT/2)-8, (uint8_t *)depth_str_tremolo, LEFT_MODE);
 }
 
+double Square_Signal(uint16_t x, uint16_t period)
+{
+	if(x <= period/2)
+		return 1;
+	else
+		return -1;
+}
+
+
+double Triangle_Signal(uint16_t x, uint16_t period)
+{
+		if(x <= period/2)
+			return ( ((double)(x) *4/period) - 1 );
+	else
+		return ( 1 - ((double)(x) *4/period) );
+}
+
+
+
 void Display_On_Off_Info_Tremolo(void)
 {
 		if(is_button_active==BUTTON_NOT_ACTIVE)
@@ -189,10 +211,35 @@ void Display_On_Off_Info_Tremolo(void)
 	} 
 }
 
-void Tremolo(uint16_t *data)
+void Tremolo(uint16_t* data_out, uint8_t count)
 {
+	
 		if(is_active_tremolo == ACTIVE)
 	{
+		  
+			double frequency_mod = (double)(rate_tremolo)/44100;
+			uint16_t tremolo_period = 44100 / rate_tremolo;
+			static uint16_t tremolo_n = 0;
+			uint16_t n;
+			int16_t curr_sample;
+			int16_t out_sample;
 		
+
+				for(n = count*AUDIO_BLOCK_SIZE/2; n < (count+1)*AUDIO_BLOCK_SIZE/2; n++)
+				{
+				  curr_sample = (int16_t) data_out[n];
+					if(shape_tremolo == SIN)
+					{
+					  out_sample = (curr_sample *(1 + depth_tremolo*arm_cos_f32(2*PI*frequency_mod*tremolo_n)));		
+					}else if(shape_tremolo == SQU) 
+					{
+						out_sample = (curr_sample *(1 + depth_tremolo*Square_Signal(tremolo_n, tremolo_period)));			
+					}else if(shape_tremolo == TRI)
+					{
+						out_sample = (curr_sample *(1 + depth_tremolo*Triangle_Signal(tremolo_n, tremolo_period)));		
+					}
+					data_out[n] = (uint16_t) out_sample;				
+					tremolo_n = (tremolo_n + tremolo_period + 1) % tremolo_period;
+				}
 	}
 }

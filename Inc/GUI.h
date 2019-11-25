@@ -3,6 +3,9 @@
 #endif
 
 #include "main.h"
+//#include "arm_cos_f32.c"
+#include "arm_math.h"
+#include "arm_common_tables.h"
 
 /* Polozenie przycisków */
 #define DELAY_DOWN_BUTTON_XPOS						30
@@ -57,7 +60,7 @@
 #define VOLUME_UP_BUTTON_XPOS						300
 #define VOLUME_BUTTON_YPOS									130
 
-#define APPLY_BUTTON_XPOS											200
+#define APPLY_BUTTON_XPOS											190
 #define APPLY_BUTTON_YPOS										BSP_LCD_GetYSize() - 50
 
 
@@ -86,3 +89,5 @@
 /* Polozenie napisów */
 #define	TITLE_XPOS																	120
 #define	TITLE_YPOS																		15
+#define GREETING_TITLE_XPOS									80
+#define GREETING_TITLE_YPOS								110

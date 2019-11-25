@@ -124,27 +124,54 @@ void Display_On_Off_Info_Overdrive()
 		}	
 }
 
+// TODO Poprawic zakres
+//TODO Dodac Gain?
 
-void Overdrive(uint16_t *data)
+void Overdrive(uint16_t *data_out, uint8_t count)
 {
 		if(is_active_overdrive == ACTIVE)
 	{
-			uint32_t i;
-			uint16_t overdrive_temp = clip_value_overdrive * 65535;
-			for(i = 0; i < AUDIO_BLOCK_SIZE; i++)
-			{
-				 if ((data[i]) <= -(2/3)*overdrive_temp)
-						data[i] = -overdrive_temp;
-				else if (data[i] <= -(1/3)*overdrive_temp)
-            data[i] = data[i]*(-3+(2+3*data[i]/overdrive_temp)^2)/3;
-        else if (data[i] <= (1/3)*data[i])
-            data[i]= 2*data[i];
-         else if (data[i] <= (2/3)*data[i])
-            data[i]= data[i]*(3-(2-3*data[i]/data[i])^2)/3;
-				 else
-						data[i] = overdrive_temp; 
-				}
-			} 
+			uint16_t n;
+			uint16_t overdrive_temp = 500*clip_value_overdrive;
+			int16_t curr_sample;
+			int16_t out_sample;
 		
+			for(n = count*AUDIO_BLOCK_SIZE/2; n < (count+1)*AUDIO_BLOCK_SIZE/2; n++)
+			{			
+				curr_sample = (int16_t) data_out[n];
+				
+				if(curr_sample <= -(2*overdrive_temp/3))
+				{
+					out_sample = - overdrive_temp;
+					
+				}else if(curr_sample <= -(overdrive_temp/3))
+				{
+					// TODO sprawdzic pukanie
+
+				//	out_sample = (-overdrive_temp/3) + (4*out_sample) - 3*(out_sample*out_sample/overdrive_temp);
+					out_sample = (overdrive_temp/3) + (4*out_sample) + 3*(out_sample*out_sample/overdrive_temp);
+					
+				} else if (curr_sample > (-overdrive_temp/3) && curr_sample < (overdrive_temp/3))
+				{
+					out_sample = 2*curr_sample;
+				} else if(curr_sample <= 2*overdrive_temp/3)
+				{
+
+			/*		data_out[n]= (overdrive_temp/4) + (4*data_in[n]) - (3*data_in[n]*data_in[n]/overdrive_temp);
+					out_sample = overdrive_temp*(  3 -  (2-3*out_sample/overdrive_temp)* (2-3*out_sample/overdrive_temp )  )/3;
+					out_sample = overdrive_temp*(  3 -  (4 - 12*out_sample/overdrive_temp + 9*(out_sample*out_sample)/(overdrive_temp*overdrive_temp )  ))/3;
+					out_sample = overdrive_temp*(  3 -  4 +  12*out_sample/overdrive_temp -  9*(out_sample*out_sample)/(overdrive_temp*overdrive_temp ) ) /3;
+					out_sample = (-overdrive_temp + 12*out_sample - 9*out_sample*out_sample/overdrive_temp)/3; */
+			
+					out_sample = (-overdrive_temp/3) + (4*out_sample) - 3*(out_sample*out_sample/overdrive_temp);
+				} else
+				{
+					out_sample = overdrive_temp;
+				}
+				
+					data_out[n] = (uint16_t)out_sample;
+			
+		  } 
 	}
+} 	
 

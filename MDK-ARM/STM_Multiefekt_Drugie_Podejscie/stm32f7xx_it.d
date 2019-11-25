@@ -54,4 +54,5 @@ stm_multiefekt_drugie_podejscie\stm32f7xx_it.o: ..\HAL Drivers Discovery\stm3274
 stm_multiefekt_drugie_podejscie\stm32f7xx_it.o: ..\Audio Codec Files\wm8994\wm8994.h
 stm_multiefekt_drugie_podejscie\stm32f7xx_it.o: ..\Audio Codec Files\wm8994\audio.h
 stm_multiefekt_drugie_podejscie\stm32f7xx_it.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+stm_multiefekt_drugie_podejscie\stm32f7xx_it.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 stm_multiefekt_drugie_podejscie\stm32f7xx_it.o: ../Inc/stm32f7xx_it.h
