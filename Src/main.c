@@ -32,12 +32,15 @@
 #include "pitch_shifter.h"
 #include "tremolo.h"
 #include "flanger.h"
-#include "tim.h"
 
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+
+/**
+  * Stany zapelnienia bufora przetwarzania audio
+  */
 typedef enum
 {
   BUFFER_OFFSET_NONE = 0,
@@ -45,6 +48,9 @@ typedef enum
   BUFFER_OFFSET_FULL = 2,
 }BUFFER_StateTypeDef;
 
+/**
+  * Stan (nazwa) obecnie wyswietlanego okna aplikacji
+  */
 typedef enum
 {
 	MAIN_WINDOW = 0,
@@ -100,57 +106,77 @@ void LCD_Multieffect_Init(void);
 void Current_Window_Select(void);
 void MainWindow_Touch_Detection(void);
 void Signal_Processing(uint16_t *data_in, uint16_t *data_out, uint32_t count);
+void Set_Default_Parameters(void);
+void Load_Effects_Parameters(void);
+void Save_Effects_Parameters(void);
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+/**
+  *  Zmienne obslugi i inicjalizacji wyswietlacza LCD oraz panelu dotykowego
+  */
 TS_StateTypeDef 			ts;
 char xTouchStr[10];
 uint16_t x, y;
-uint16_t n, m;
-uint8_t  audio_rec_buffer_state;
 uint8_t current_window;
-uint32_t count = 0;
+uint8_t is_button_active= BUTTON_NOT_ACTIVE;
+
+/**
+  * Zmienne przetwarzania sygnalu audio
+  */
+uint8_t  audio_rec_buffer_state;
 uint8_t is_codec_initialized = AUDIO_ERROR;
-
-uint8_t second_counter = 0;
-
-int16_t sample1;
-uint32_t sample2;
-uint32_t sample1x;
-uint32_t sample2x;
-
-char button_names[8][14] = {
-			
-			"Reverb",
-			"Overdrive",
-			"Delay",
-			"Glosnosc",
-			"Flanger",
-			"Chorus",
-			"Tremolo",	
-			"Pitch Shifter"
-};
-
-
 uint16_t data_in[AUDIO_BUFFER_SIZE];
 uint16_t data_out[AUDIO_BUFFER_SIZE];
 uint16_t data_out_processed[2*AUDIO_BLOCK_SIZE];
-uint8_t is_button_active= BUTTON_NOT_ACTIVE;
+
+/**
+  * Zmienne obslugi licznika TIM10
+  */
+uint32_t count = 0;
+uint8_t second_counter = 0;
+
+/**
+  * Zmienne obslugi karty SD
+  */
+uint8_t SD_state = MSD_OK;
+uint32_t sd_data_buffer[BUFFER_WORDS_SIZE];
+
+int16_t sample1;
+int16_t sample2;
+int16_t sample1x;
+int16_t sample2x;
+
+
+/**
+  * Tablica nazw przciskow menu glownego aplikacji
+  */
+char button_names[8][14] = {	
+	"Reverb",
+	"Overdrive",
+	"Delay",
+	"Glosnosc",
+	"Flanger",
+	"Chorus",
+	"Tremolo",	
+	"Pitch Shifter"
+};
+
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
+  * @brief  Punkt wejsciowy aplikacji.
   * @retval int
   */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-							/*Enable the CPU Cache */
-							/*Enable I-Cache and D-Cache */
-							SCB_EnableICache();
-							SCB_EnableDCache();
+	/*Enable the CPU Cache */
+	/*Enable I-Cache and D-Cache */
+	SCB_EnableICache();
+	SCB_EnableDCache();
   /* USER CODE END 1 */
   
 
@@ -177,13 +203,24 @@ int main(void)
   MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
 
-	BSP_SDRAM_Init(); /* Initializes the SDRAM device */
-	__HAL_RCC_CRC_CLK_ENABLE(); /* Enable the CRC Module */
+	/* Initializes the SDRAM device */
+	BSP_SDRAM_Init(); 
+	/* Enable the CRC Module */
+	__HAL_RCC_CRC_CLK_ENABLE(); 
 
-	BSP_LED_Init(LED1);
-/* Configure the User Button in GPIO Mode */
-	BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_GPIO);
+	/**
+		* Inicjalizacja sterownika obslugi karty SD
+		*/
+	SD_state = BSP_SD_Init();
+	/**
+  * Inicjalizacja wyswietlacza LCD oraz panelu dotykowego
+  */
 	LCD_Multieffect_Init();
+	/**
+  * Inicjalizacja algorytmu wokodera fazowego
+  */
+//	PhaseVocoderInit();
+
 
   /* USER CODE END 2 */
 
@@ -195,14 +232,16 @@ int main(void)
 		
 
     /* USER CODE BEGIN 3 */
-				Multieffect();
+		/**
+		* Uruchomienie przetwarzania sygnalu w czasie rzeczywistym
+		*/
+		Multieffect();
   }
-	
   /* USER CODE END 3 */
 }
 
 /**
-  * @brief System Clock Configuration
+  * @brief Konfiguracja zegara systemowego
   * @retval None
   */
 void SystemClock_Config(void)
@@ -250,7 +289,7 @@ void SystemClock_Config(void)
 }
 
 /**
-  * @brief CRC Initialization Function
+  * @brief Funkcja inicjalizujaca CRC
   * @param None
   * @retval None
   */
@@ -277,11 +316,10 @@ static void MX_CRC_Init(void)
   /* USER CODE BEGIN CRC_Init 2 */
 
   /* USER CODE END CRC_Init 2 */
-
 }
 
 /**
-  * @brief DMA2D Initialization Function
+  * @brief Funkcja inicjalizujaca DMA2D
   * @param None
   * @retval None
   */
@@ -314,11 +352,10 @@ static void MX_DMA2D_Init(void)
   /* USER CODE BEGIN DMA2D_Init 2 */
 
   /* USER CODE END DMA2D_Init 2 */
-
 }
 
 /**
-  * @brief TIM10 Initialization Function
+  * @brief Funkcja inicjalizujaca licznik TIM10.
   * @param None
   * @retval None
   */
@@ -345,11 +382,10 @@ static void MX_TIM10_Init(void)
   /* USER CODE BEGIN TIM10_Init 2 */
 
   /* USER CODE END TIM10_Init 2 */
-
 }
 
 /**
-  * @brief GPIO Initialization Function
+  * @brief Funkcja inicjalizaujaca GPIO.
   * @param None
   * @retval None
   */
@@ -370,19 +406,28 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
-
 }
 
 /* USER CODE BEGIN 4 */
 
-
+/**
+  * @brief  Wyswietla okno startowe aplikacji
+  * @param  is_blinking: Okresla kolor napisu startowego
+  *          Przyjmuje on jedna z dwoch wartosci:
+  *            @arg  0: kolor czarny napisu
+  *            @arg  1: kolor bialy napisu
+  * @retval Brak
+  */
 void Display_StartWindow(uint8_t is_blinking) 
 {
 	BSP_LCD_SetFont(&Font24);
 	BSP_LCD_Clear(LCD_COLOR_LIGHTGRAY);
+	BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
 	BSP_LCD_SetBackColor(LCD_COLOR_LIGHTGRAY);
 	BSP_LCD_DisplayStringAt(GREETING_TITLE_XPOS, GREETING_TITLE_YPOS, (uint8_t *)"MULTIEFEKT GITAROWY", LEFT_MODE);
 	BSP_LCD_SetFont(&Font12);
+	
+	/* Zmiana koloru napisu 'KLIKNIJ ABY URUCHOMIC' */
 	if(is_blinking == 1)
 	{
 		BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
@@ -399,37 +444,77 @@ void Display_StartWindow(uint8_t is_blinking)
 	BSP_LCD_SetBackColor(LCD_COLOR_WHITE);
 	BSP_LCD_SetFont(&Font16);
 	BSP_LCD_DisplayStringAt(APPLY_BUTTON_XPOS+20, APPLY_BUTTON_YPOS+(APPLY_BUTTON_HEIGHT/3), (uint8_t *)"START", LEFT_MODE);
+	
+	/* Sprawdzenie stanu kary SD oraz ewentualne zaladowanie danych z jej pamieci */
+	if (SD_state != MSD_OK)
+	{
+		BSP_LCD_SetFont(&Font12);
+		BSP_LCD_SetTextColor(LCD_COLOR_RED);
+		BSP_LCD_SetBackColor(LCD_COLOR_LIGHTGRAY);
+		if(SD_state == MSD_ERROR_SD_NOT_PRESENT)
+		{
+			BSP_LCD_DisplayStringAt(195, 160, (uint8_t *)"Brak karty SD", LEFT_MODE);
+		}else
+		{
+			BSP_LCD_DisplayStringAt(195, 160, (uint8_t *)"Blad karty SD.", LEFT_MODE);
+		}
+	}else
+	{
+		BSP_LCD_SetFont(&Font12);
+		BSP_LCD_SetTextColor(LCD_COLOR_GREEN);
+		BSP_LCD_SetBackColor(LCD_COLOR_LIGHTGRAY);
+		BSP_LCD_DisplayStringAt(195, 160, (uint8_t *)"Karta SD obecna", LEFT_MODE);
+		
+		Load_Effects_Parameters();
+	}
 }
 
+/**
+  * @brief  Implementuje funkcjonalnosc wcisniecia przyciskow okna startowego
+  * @param Brak
+  * @retval Brak
+  */
 void StartWindow_Touch_Detection(void)
 {
 	if((y > APPLY_BUTTON_YPOS) && (y < APPLY_BUTTON_YPOS + APPLY_BUTTON_HEIGHT))
 	{
-		/* Sprawdzenie przycisku Reverb */	
+		/* Sprawdzenie przycisku START */	
 		if((x > APPLY_BUTTON_XPOS) && (x < APPLY_BUTTON_XPOS + APPLY_BUTTON_WIDTH))
 		{	
-				BSP_AUDIO_OUT_SetMute(AUDIO_MUTE_OFF);
-				Display_MainWindow();
+			BSP_AUDIO_OUT_SetMute(AUDIO_MUTE_OFF);
+			Display_MainWindow();
 		}
 	}
 }
 
-
-void LCD_Multieffect_Init()
+/**
+  * @brief  Inicjalizacja wyswietlacza LCD oraz panelu dotykowego
+  * @param  Brak
+  * @retval Brak
+  */
+void LCD_Multieffect_Init(void)
 {
-	BSP_TS_Init(480, 270);  /* Inicjalizacja panelu dotykowego */
-	BSP_LCD_Init();						/* Inicjalizacja wyswietlacza LCD */
-	BSP_LCD_LayerDefaultInit(LTDC_ACTIVE_LAYER, LCD_FRAME_BUFFER);  /* Inicjalizacja warstwy LCD - bufor LCD w pamieci */
-	BSP_LCD_DisplayOn();	/* Uruchomienie wyswietlacza */
+	/* Inicjalizacja panelu dotykowego */
+	BSP_TS_Init(480, 270);  
+	/* Inicjalizacja wyswietlacza LCD */
+	BSP_LCD_Init();						
+	/* Inicjalizacja warstwy LCD - bufor LCD w pamieci */
+	BSP_LCD_LayerDefaultInit(LTDC_ACTIVE_LAYER, LCD_FRAME_BUFFER);
+	/* Uruchomienie wyswietlacza */
+	BSP_LCD_DisplayOn();
 	BSP_LCD_SelectLayer(LTDC_ACTIVE_LAYER);    
 
 	current_window = START_WINDOW;
 
 	HAL_TIM_Base_Start_IT(&htim10);
 	Display_StartWindow(0);
-//	Display_MainWindow();
 }
 
+/**
+  * @brief  Wyswietla glowne okno menu aplikacji
+  * @param  Brak
+  * @retval Brak
+  */
 void Display_MainWindow(void)
 { 
 	current_window = MAIN_WINDOW;
@@ -438,6 +523,8 @@ void Display_MainWindow(void)
 	BSP_LCD_Clear(LCD_COLOR_LIGHTGRAY);
 	int i;
 	BSP_LCD_SetBackColor(LCD_COLOR_WHITE);
+	
+	/* Wyswietlenie przyciskow menu glownego */
 	for(i=1; i<9; i++)
 	{
 		BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
@@ -452,12 +539,173 @@ void Display_MainWindow(void)
 			BSP_LCD_DisplayStringAt(BUTTON_XPOS(i)+15, BUTTON_YPOS(i)+(BUTTON_HEIGHT/2)-3, (uint8_t *)button_names[i-1], LEFT_MODE);
 		}	
 	}
-}
 	
+	/* Wyswietlenie przycisku przywrocenia domyslnych wartosci parametrow efektow */
+		BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
+		BSP_LCD_FillRect(SET_DEFAULT_BUTTON_XPOS-5, SET_DEFAULT_BUTTON_YPOS-5, SET_DEFAULT_BUTTON_WIDTH+10, SET_DEFAULT_BUTTON_HEIGHT+10);
+		BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
+		BSP_LCD_FillRect(SET_DEFAULT_BUTTON_XPOS, SET_DEFAULT_BUTTON_YPOS, SET_DEFAULT_BUTTON_WIDTH, SET_DEFAULT_BUTTON_HEIGHT);
+		BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
+
+		BSP_LCD_SetFont(&Font8);
+		BSP_LCD_DisplayStringAt(SET_DEFAULT_BUTTON_XPOS+5, SET_DEFAULT_BUTTON_YPOS+(SET_DEFAULT_BUTTON_HEIGHT/2)-3, (uint8_t *)"Przywroc domyslne", LEFT_MODE);
+	
+	/* Wyswietlenie przycisku zapisu danych na karte SD w zaleznosci od jej stanu */
+	if (SD_state == MSD_OK)
+	{
+		BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
+		BSP_LCD_FillRect(SD_CARD_SAVE_XPOS-5, SD_CARD_SAVE_YPOS-5, SD_CARD_SAVE_WIDTH+10, SD_CARD_SAVE_HEIGHT+10);
+		BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
+		BSP_LCD_FillRect(SD_CARD_SAVE_XPOS, SD_CARD_SAVE_YPOS, SD_CARD_SAVE_WIDTH, SD_CARD_SAVE_HEIGHT);
+		BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
+
+		BSP_LCD_SetFont(&Font8);
+		BSP_LCD_DisplayStringAt(SD_CARD_SAVE_XPOS+5, SD_CARD_SAVE_YPOS+(SD_CARD_SAVE_HEIGHT/2)-3, (uint8_t *)"Zapisz na karcie SD", LEFT_MODE);
+	}
+	
+	/* Wyswietlenie napisu tytulowego */
+	BSP_LCD_SetFont(&Font24);
+	BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
+	BSP_LCD_SetBackColor(LCD_COLOR_LIGHTGRAY);
+	BSP_LCD_DisplayStringAt(85, 8, (uint8_t *)"MULTIEFEKT GITAROWY", LEFT_MODE);
+}
+
+/**
+  * @brief  Implementacja funkcjonalnosci wcisniecia przyciskow okna glownego
+  * @param  Brak
+  * @retval Brak
+  */
+void MainWindow_Touch_Detection(void)
+{
+	/* Sprawdzenie 1ego rzedu przycisków */
+	if((y > BUTTON_YPOS(1)) && (y < BUTTON_YPOS(1) + BUTTON_HEIGHT))
+	{
+		/* Sprawdzenie przycisku Reverb */	
+		if((x > BUTTON_XPOS(1)) && (x < BUTTON_XPOS(1) + BUTTON_WIDTH))
+		{
+			current_window = REVERB_WINDOW;
+			Display_Reverb_Window();
+		/* Sprawdzenie przycisku Overdrive */						
+		}else if((x > BUTTON_XPOS(2)) && (x < BUTTON_XPOS(2) + BUTTON_WIDTH))
+		{
+			current_window = OVERDRIVE_WINDOW;
+			Display_Overdrive_Window();
+		/* Sprawdzenie przycisku Delay */						
+		}else if((x > BUTTON_XPOS(3)) && (x < BUTTON_XPOS(3) + BUTTON_WIDTH))
+		{
+			current_window = DELAY_WINDOW;
+			Display_Delay_Window();
+		/* Sprawdzenie przycisku Glosnosc */					
+		}else if((x > BUTTON_XPOS(4)) && (x < BUTTON_XPOS(4) + BUTTON_WIDTH))
+		{
+		 current_window = VOLUME_WINDOW;
+		 Display_Volume_Window();
+		}
+	/* Sprawdzenie 2ego rzedu przycisków */			
+	}else if((y > BUTTON_YPOS(5)) && (y < BUTTON_YPOS(5) + BUTTON_HEIGHT))
+	{
+		/* Sprawdzenie przycisku Flanger */				
+		if((x > BUTTON_XPOS(5)) && (x < BUTTON_XPOS(5) + BUTTON_WIDTH))
+		{
+		 current_window = FLANGER_WINDOW;
+		 Display_Flanger_Window();
+		/* Sprawdzenie przycisku Chorus */					
+		}else if((x > BUTTON_XPOS(6)) && (x < BUTTON_XPOS(6) + BUTTON_WIDTH))
+		{
+			current_window = CHORUS_WINDOW;
+			Display_Chorus_Window();
+		/* Sprawdzenie przycisku Tremolo */					
+		}else if((x > BUTTON_XPOS(7)) && (x < BUTTON_XPOS(7) + BUTTON_WIDTH))
+		{
+			current_window = TREMOLO_WINDOW;
+			Display_Tremolo_Window();
+		/* Sprawdzenie przycisku Pitch Shifter */			
+		}else if((x > BUTTON_XPOS(8)) && (x < BUTTON_XPOS(8) + BUTTON_WIDTH))
+		{		
+			current_window = PITCHSHIFTER_WINDOW;
+			Display_PitchShifter_Window();
+		}
+		
+	/* Sprawdzenie przycisku przywrocenia domyslnych wartosci parametrow efektow */	
+	}else if((y > SET_DEFAULT_BUTTON_YPOS) && (y < SET_DEFAULT_BUTTON_YPOS + SD_CARD_SAVE_HEIGHT))
+	{
+		if((x > SET_DEFAULT_BUTTON_XPOS) && (x < SET_DEFAULT_BUTTON_XPOS + SET_DEFAULT_BUTTON_WIDTH))
+		{
+			Set_Default_Parameters();
+		}
+	/* Sprawdzenie przycisku zapisu parametrów efektów na karcie SD */	
+	}else if((y > SD_CARD_SAVE_YPOS) && (y < SD_CARD_SAVE_YPOS + SD_CARD_SAVE_HEIGHT))
+	{
+		if((x > SD_CARD_SAVE_XPOS) && (x < SD_CARD_SAVE_XPOS + SD_CARD_SAVE_WIDTH))
+		{
+			if (SD_state != MSD_OK)
+			{
+				BSP_LCD_SetTextColor(LCD_COLOR_RED);
+				BSP_LCD_SetBackColor(LCD_COLOR_LIGHTGRAY);
+				BSP_LCD_SetFont(&Font12);
+				BSP_LCD_DisplayStringAt(SD_INFO_XPOS, SD_INFO_YPOS, (uint8_t *)"BLAD SD", LEFT_MODE);
+			}
+			else
+			{
+				Save_Effects_Parameters();
+			}
+		}
+	}
+}
+
+/**
+  * @brief  Wybor funkcji obslugi przyciskow panelu dotykowego w zaleznosci od obecnie wyswietlanego okna
+  * @param  Brak
+  * @retval Brak
+  */
+void Current_Window_Select(void)
+{
+	switch(current_window)
+	{
+		case MAIN_WINDOW:
+			MainWindow_Touch_Detection();
+			break;
+		case VOLUME_WINDOW:
+			VolumeWindow_Touch_Detection(x, y);
+			break;
+		case REVERB_WINDOW:
+			ReverbWindow_Touch_Detection(x, y);
+			break;
+		case OVERDRIVE_WINDOW:
+			OverdriveWindow_Touch_Detection(x, y);
+			break;
+		case DELAY_WINDOW:
+			DelayWindow_Touch_Detection(x, y);
+			break;			
+		case FLANGER_WINDOW:
+			FlangerWindow_Touch_Detection(x, y);
+			break;		
+		case CHORUS_WINDOW:
+			ChorusWindow_Touch_Detection(x, y);
+			break;		
+		case TREMOLO_WINDOW:
+			TremoloWindow_Touch_Detection(x, y);
+			break;		
+		case PITCHSHIFTER_WINDOW:
+			PitchShifterWindow_Touch_Detection(x, y);
+			break;		
+		case START_WINDOW:
+			StartWindow_Touch_Detection();
+			break;		
+	}
+}
+
+/**
+  * @brief  Realizacja przetwarzania sygnalu audio
+  * @param Brak
+  * @retval Brak
+  */
 void Multieffect(void)
 {
-	/* Inicjalizacja kodeka, SAI */
-	if (BSP_AUDIO_IN_OUT_Init(INPUT_DEVICE_INPUT_LINE_1 , OUTPUT_DEVICE_HEADPHONE, I2S_AUDIOFREQ_44K  , DEFAULT_AUDIO_IN_BIT_RESOLUTION, DEFAULT_AUDIO_IN_CHANNEL_NBR) == AUDIO_OK)
+	uint16_t m, n;
+	
+	/* Inicjalizacja kodeka oraz SAI */
+	if (BSP_AUDIO_IN_OUT_Init(INPUT_DEVICE_INPUT_LINE_1, OUTPUT_DEVICE_HEADPHONE, I2S_AUDIOFREQ_44K , DEFAULT_AUDIO_IN_BIT_RESOLUTION, DEFAULT_AUDIO_IN_CHANNEL_NBR) == AUDIO_OK)
 	{
 		BSP_LCD_SetBackColor(LCD_COLOR_WHITE);
 		BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
@@ -483,18 +731,16 @@ void Multieffect(void)
 	/* Rozpoczecie nagrywania */
 	BSP_AUDIO_IN_Record((uint16_t*)AUDIO_BUFFER_IN, AUDIO_BLOCK_SIZE);
 
-	/* Odtworzenie */
+	/* Rownolegle odtwarzanie probek */
 	BSP_AUDIO_OUT_SetAudioFrameSlot(CODEC_AUDIOFRAME_SLOT_02);
 	BSP_AUDIO_OUT_Play((uint16_t*)AUDIO_BUFFER_OUT, AUDIO_BLOCK_SIZE*4);
 	
 	BSP_AUDIO_OUT_SetMute(AUDIO_MUTE_ON);
-
-	//TODO Zmniejszyc rozmiar bufora AUDIO_BLOCK_SIZE
 	
 	 while (1)
 	{
+		
 		/* Czekaj na nagranie polowy bloku */
-
 		while(audio_rec_buffer_state != BUFFER_OFFSET_HALF)
 		{
 			HAL_Delay(1);
@@ -503,19 +749,20 @@ void Multieffect(void)
 		
 		/* Skopiuj nagrany blok */
 		memcpy((uint16_t *)(data_in + (count*AUDIO_BLOCK_SIZE/2)), (uint16_t *)(AUDIO_BUFFER_IN), AUDIO_BLOCK_SIZE);
+
 		memcpy((uint16_t *)(data_out + (count*AUDIO_BLOCK_SIZE/2)), (uint16_t *)(data_in + (count*AUDIO_BLOCK_SIZE/2)), AUDIO_BLOCK_SIZE);
 		
-
 		/* Przetwórz próbki sygnalu wlaczonymi efektami */
 		Signal_Processing(data_in, data_out, count);
+
 		
+		/* Powielenie probek w buforze, aby dzwiek byl slyszalny na obu kanalach */
 		m = 0;
 		for(n = count*AUDIO_BLOCK_SIZE/2; n < (count+1)*AUDIO_BLOCK_SIZE/2; n++) 
 		{
 			data_out_processed[m] = data_out[n];
 			data_out_processed[m+1] = data_out[n];
 			m += 2;
-			sample1 = (int16_t)data_out[n];
 		}
 		
 		/* Odtworz sygnal wyjsciowy */
@@ -540,6 +787,7 @@ void Multieffect(void)
 		/* Przetwórz próbki sygnalu wlaczonymi efektami */
 		Signal_Processing(data_in, data_out, count);
 		
+		/* Powielenie probek w buforze, aby dzwiek byl slyszalny na obu kanalach */
 		m = 0;
 		for(n = count*AUDIO_BLOCK_SIZE/2; n < (count+1)*AUDIO_BLOCK_SIZE/2; n++) 
 		{	
@@ -553,125 +801,38 @@ void Multieffect(void)
 									(uint16_t *)(data_out_processed),
 									AUDIO_BLOCK_SIZE*2);
 			
-		if(count == 43)
+		/* Aktualizacja licznika obecnie przetwarzanego bloku probek */
+		if(count == 351)
 		{
 			count = 0;
 		}
 		else
 		{
-				count += 1;
+			count += 1;
 		}
 	}
 }
 
-void Current_Window_Select(void)
-{
-		switch(current_window)
-		{
-			case MAIN_WINDOW:
-				MainWindow_Touch_Detection();
-				break;
-			case VOLUME_WINDOW:
-				VolumeWindow_Touch_Detection(x, y);
-				break;
-			case REVERB_WINDOW:
-				ReverbWindow_Touch_Detection(x, y);
-				break;
-			case OVERDRIVE_WINDOW:
-				OverdriveWindow_Touch_Detection(x, y);
-				break;
-			case DELAY_WINDOW:
-				DelayWindow_Touch_Detection(x, y);
-				break;			
-			case FLANGER_WINDOW:
-				FlangerWindow_Touch_Detection(x, y);
-				break;		
-			case CHORUS_WINDOW:
-				ChorusWindow_Touch_Detection(x, y);
-				break;		
-			case TREMOLO_WINDOW:
-				TremoloWindow_Touch_Detection(x, y);
-				break;		
-			case PITCHSHIFTER_WINDOW:
-				PitchShifterWindow_Touch_Detection(x, y);
-				break;		
-			case START_WINDOW:
-				StartWindow_Touch_Detection();
-				break;		
-		}
-	
-}
-
-
-void MainWindow_Touch_Detection(void)
-{
-		/* Sprawdzenie 1ego rzedu przycisków */
-		if((y > BUTTON_YPOS(1)) && (y < BUTTON_YPOS(1) + BUTTON_HEIGHT))
-		{
-				/* Sprawdzenie przycisku Reverb */	
-				if((x > BUTTON_XPOS(1)) && (x < BUTTON_XPOS(1) + BUTTON_WIDTH))
-				{
-					  current_window = REVERB_WINDOW;
-						Display_Reverb_Window();
-				/* Sprawdzenie przycisku Overdrive */						
-				}else if((x > BUTTON_XPOS(2)) && (x < BUTTON_XPOS(2) + BUTTON_WIDTH))
-				{
-						current_window = OVERDRIVE_WINDOW;
-				  	Display_Overdrive_Window();
-				/* Sprawdzenie przycisku Delay */						
-				}else if((x > BUTTON_XPOS(3)) && (x < BUTTON_XPOS(3) + BUTTON_WIDTH))
-				{
-						current_window = DELAY_WINDOW;
-						Display_Delay_Window();
-				/* Sprawdzenie przycisku Glosnosc */					
-				}else if((x > BUTTON_XPOS(4)) && (x < BUTTON_XPOS(4) + BUTTON_WIDTH))
-				{
-					 current_window = VOLUME_WINDOW;
-					 Display_Volume_Window();
-				}
-		/* Sprawdzenie 2ego rzedu przycisków */			
-		}else if((y > BUTTON_YPOS(5)) && (y < BUTTON_YPOS(5) + BUTTON_HEIGHT))
-		{
-				/* Sprawdzenie przycisku Flanger */				
-				if((x > BUTTON_XPOS(5)) && (x < BUTTON_XPOS(5) + BUTTON_WIDTH))
-				{
-					 current_window = FLANGER_WINDOW;
-					 Display_Flanger_Window();
-				/* Sprawdzenie przycisku Chorus */					
-				}else if((x > BUTTON_XPOS(6)) && (x < BUTTON_XPOS(6) + BUTTON_WIDTH))
-				{
-					  current_window = CHORUS_WINDOW;
-						Display_Chorus_Window();
-				/* Sprawdzenie przycisku Tremolo */					
-				}else if((x > BUTTON_XPOS(7)) && (x < BUTTON_XPOS(7) + BUTTON_WIDTH))
-				{
-					 	current_window = TREMOLO_WINDOW;
-						Display_Tremolo_Window();
-				/* Sprawdzenie przycisku Pitch Shifter */			
-				}else if((x > BUTTON_XPOS(8)) && (x < BUTTON_XPOS(8) + BUTTON_WIDTH))
-				{		
-					 	current_window = PITCHSHIFTER_WINDOW;
-						Display_PitchShifter_Window();
-				}
-		}
-}
-
-
+/**
+  * @brief  Realizacja przetwarzania sygnalu wejsciowego w petli efektow
+  * @param  *data_in: wskaznik na bufor oryginalego sygnalu wejsciowego
+  * @param  *data_out: wskaznik na bufor przetworzonego sygnalu wejsciowego
+  * @param  count: obecna ramka sygnalu audio
+  * @retval Brak
+  */
 void Signal_Processing(uint16_t *data_in, uint16_t *data_out, uint32_t count)
 {
-	//PitchShifter(data_in, data_out, count);
-	//Overdrive(data_out, count);
-	//Chorus(data_in, data_out, count);
-	//Flanger(data_in, data_out, count);
-	//Tremolo(data_out, count);
-	//Delay(data_in, data_out,  count);
-	
+	PitchShifter(data_out, count);
+	Overdrive(data_out, count);
+	Chorus(data_in, data_out, count);
+	Flanger(data_in, data_out, count);
+	Tremolo(data_out, count);
+	Delay(data_in, data_out,  count);
 	Reverb(data_in, data_out, count);
 }
 
-
 /**
-  * @brief Manages the DMA Transfer complete interrupt.
+  * @brief Zarzadza przerwaniem DMA w przypadku zapelnienia calego bufora probek audio.
   * @param None
   * @retval None
   */
@@ -682,7 +843,7 @@ void BSP_AUDIO_IN_TransferComplete_CallBack(void)
 }
 
 /**
-  * @brief  Manages the DMA Half Transfer complete interrupt.
+  * @brief  Zarzadza przerwaniem DMA w przypadku zapelnienia polowy bufora probek audio.
   * @param  None
   * @retval None
   */
@@ -693,7 +854,7 @@ void BSP_AUDIO_IN_HalfTransfer_CallBack(void)
 }
 
 /**
-  * @brief  Audio IN Error callback function.
+  * @brief  Funkcja callback wywolywana w przypadku bledu wejsciowego audio.
   * @param  None
   * @retval None
   */
@@ -713,46 +874,228 @@ void BSP_AUDIO_IN_Error_CallBack(void)
 }
 
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{		
-		if(htim->Instance == TIM10)
-		{
-				/* Sprawdz jaki jest stan wyswietlacza dotykowego oraz czy uzytkownik go dotknal */
-				BSP_TS_GetState(&ts);
-				if(ts.touchDetected)
-				{
-					if(is_codec_initialized == AUDIO_OK)
-						BSP_AUDIO_OUT_SetMute(AUDIO_MUTE_ON);
-					/* Pobierz koordynaty dotknietego ekranu */
-					x = ts.touchX[0];
-					y = ts.touchY[0];
-					/* Sprawdz, które okno jest obecnie aktywne */
-					Current_Window_Select();
-					is_button_active = BUTTON_ACTIVE;
-					if(is_codec_initialized == AUDIO_OK)
-							BSP_AUDIO_OUT_SetMute(AUDIO_MUTE_OFF);
-				}
-				else
-				{
-					is_button_active = BUTTON_NOT_ACTIVE;
-				}
-			
-			
-				if(current_window == START_WINDOW)
-				{
-					if(second_counter == 10)
-					{
-						Display_StartWindow(1);
-					}else if(second_counter == 20)
-					{
-						second_counter = 0;
-						Display_StartWindow(0);
-					}								
-					second_counter += 1;
-				}  
-		}
+/**
+	* @brief  Wczytanie i ustawienie domyslnych wartosci parametrow efektow do aplikacji
+  * @param  Brak 
+  * @retval Brak
+  */
+void Set_Default_Parameters(void)
+{
+	Set_Parameters_Volume(70);
+	Set_Parameters_Overdrive(0.5, 0.5, NOT_ACTIVE);
+	Set_Parameters_Delay(500, 0.5, SOI, NOT_ACTIVE);
+	Set_Parameters_Flanger(10, 0.5, 0.5, SOI, NOT_ACTIVE);
+	Set_Parameters_Chorus(5, 0.2, 0.2, 0.5, 0.5, SOI, NOT_ACTIVE);
+	Set_Parameters_Tremolo(5, 0.5, SIN, NOT_ACTIVE);
+	Set_Parameters_Reverb(50, 0.5, 10, 10, NOT_ACTIVE);
+	
+	BSP_LCD_SetTextColor(LCD_COLOR_GREEN);
+	BSP_LCD_SetBackColor(LCD_COLOR_LIGHTGRAY);
+	BSP_LCD_SetFont(&Font12);
+	BSP_LCD_DisplayStringAt(SD_INFO_XPOS, SD_INFO_YPOS, (uint8_t *)"OK", LEFT_MODE);
 }
 
+/**
+	* @brief  Zaladowanie parametrow efektow z karty SD do aplikacji
+  * @param  Brak 
+  * @retval Brak
+  */
+void Load_Effects_Parameters(void)
+{
+	/* Czekaj az karta SD bedzie gotowa do wykonania kolejnej operacji */
+	while(BSP_SD_GetCardState() != SD_TRANSFER_OK)
+	{
+	}
+	
+	if (SD_state != MSD_OK)
+	{
+		BSP_LCD_SetTextColor(LCD_COLOR_RED);
+		BSP_LCD_SetBackColor(LCD_COLOR_LIGHTGRAY);
+		BSP_LCD_SetFont(&Font12);
+		BSP_LCD_DisplayStringAt(195, 160, (uint8_t *)"Blad ladowania danych z karty SD.", LEFT_MODE);
+	}else
+	{
+		/* Odczyt danych z kart SD i zapis do bufora */
+		SD_state = BSP_SD_ReadBlocks(sd_data_buffer, BLOCK_START_ADDR, NUM_OF_BLOCKS, 10000);
+				
+		/* Czekaj az karta SD bedzie gotowa do wykonania kolejnej operacji */
+		while(BSP_SD_GetCardState() != SD_TRANSFER_OK)
+		{
+		}
+		
+		/* Informacja, czy operacja sie udala */
+		if (SD_state != MSD_OK)
+		{
+			BSP_LCD_SetTextColor(LCD_COLOR_RED);
+			BSP_LCD_SetBackColor(LCD_COLOR_LIGHTGRAY);
+			BSP_LCD_SetFont(&Font12);
+			BSP_LCD_DisplayStringAt(195, 160, (uint8_t *)"Blad ladowania danych z karty SD.", LEFT_MODE);
+		}else
+		{
+			/* Ustawienie wartosci dla parametrow kazdego z efektow oraz glosnosci jesli istnieja takowe na karcie SD*/
+			if(sd_data_buffer[0] == SD_CODE)
+			{
+				Set_Parameters_Volume(sd_data_buffer[1]);
+				Set_Parameters_Overdrive((float)(sd_data_buffer[2])/100, (float)(sd_data_buffer[3])/100, sd_data_buffer[4]);
+				Set_Parameters_Delay(sd_data_buffer[5], (float)(sd_data_buffer[6])/100, sd_data_buffer[7], sd_data_buffer[8]);
+				Set_Parameters_Flanger(sd_data_buffer[9], (float)(sd_data_buffer[10])/100, (float)(sd_data_buffer[11])/100, sd_data_buffer[12], sd_data_buffer[13]);
+				Set_Parameters_Chorus(sd_data_buffer[14], (float)(sd_data_buffer[15])/100, (float)(sd_data_buffer[16])/100, (float)(sd_data_buffer[17])/100, (float)(sd_data_buffer[18])/100, sd_data_buffer[19], sd_data_buffer[20]);
+				Set_Parameters_Tremolo(sd_data_buffer[21], (float)(sd_data_buffer[22])/100, sd_data_buffer[23], sd_data_buffer[24]);
+				Set_Parameters_Reverb(sd_data_buffer[25], (float)(sd_data_buffer[26])/100, sd_data_buffer[27], sd_data_buffer[28], sd_data_buffer[29]);
+				Set_Parametres_PitchShifter((int8_t)(sd_data_buffer[30]), (float)(sd_data_buffer[31])/100, sd_data_buffer[32], sd_data_buffer[33]);
+				
+				BSP_LCD_SetTextColor(LCD_COLOR_GREEN);
+				BSP_LCD_SetBackColor(LCD_COLOR_LIGHTGRAY);
+				BSP_LCD_SetFont(&Font12);
+				BSP_LCD_DisplayStringAt(155, 160, (uint8_t *)"Zaladowano dane z karty SD", LEFT_MODE);
+				
+				memset(sd_data_buffer, 0, BUFFER_WORDS_SIZE);
+			}else
+			{
+				BSP_LCD_SetTextColor(LCD_COLOR_RED);
+				BSP_LCD_SetBackColor(LCD_COLOR_LIGHTGRAY);
+				BSP_LCD_SetFont(&Font12);
+				BSP_LCD_DisplayStringAt(195, 160, (uint8_t *)"Brak danych do zaladowania z karty SD", LEFT_MODE);
+			}
+		}
+	}
+}
+
+/**
+	* @brief  Zaladowanie obecnych parametrow efektow z aplikacji na karte SD
+  * @param  Brak 
+  * @retval Brak
+  */
+void Save_Effects_Parameters(void)
+{
+	/* Czekaj az karta SD bedzie gotowa do wykonania kolejnej operacji */
+	while(BSP_SD_GetCardState() != SD_TRANSFER_OK)
+	{
+	}
+	
+	if (SD_state != MSD_OK)
+	{
+		BSP_LCD_SetTextColor(LCD_COLOR_RED);
+		BSP_LCD_SetBackColor(LCD_COLOR_LIGHTGRAY);
+		BSP_LCD_SetFont(&Font12);
+		BSP_LCD_DisplayStringAt(SD_INFO_XPOS, SD_INFO_YPOS, (uint8_t *)"BLAD SD", LEFT_MODE);
+	}else
+	{	
+	int sd_buff_n = 0;
+	/* Wypelnienie bufora danymi wartosci parametrow dla kazdego z efektow */
+	for(sd_buff_n = 0; sd_buff_n < 34; sd_buff_n++)
+	{
+		if(sd_buff_n == 0)
+		{
+			sd_data_buffer[sd_buff_n] = SD_CODE;	
+		}
+		else if(sd_buff_n == 1)
+		{
+			sd_data_buffer[sd_buff_n] = Get_Parameter_Volume();	
+		}
+		else if(sd_buff_n > 1 && sd_buff_n <= 4)
+		{
+			sd_data_buffer[sd_buff_n] = Get_Parameter_Overdrive(sd_buff_n - 2);	
+		}
+		else if(sd_buff_n > 4 && sd_buff_n <= 8)
+		{
+			sd_data_buffer[sd_buff_n] = Get_Parameter_Delay(sd_buff_n - 5);	
+		}
+		else if(sd_buff_n > 8 && sd_buff_n <= 13)
+		{
+			sd_data_buffer[sd_buff_n] = Get_Parameter_Flanger(sd_buff_n - 9);	
+		}
+		else if(sd_buff_n > 13 && sd_buff_n <= 20)
+		{
+			sd_data_buffer[sd_buff_n] = Get_Parameter_Chorus(sd_buff_n - 14);	
+		}
+		else if(sd_buff_n > 20 && sd_buff_n <= 24)
+		{
+			sd_data_buffer[sd_buff_n] = Get_Parameter_Tremolo(sd_buff_n - 21);	
+		}
+		else if(sd_buff_n > 24 && sd_buff_n <= 29)
+		{
+			sd_data_buffer[sd_buff_n] = Get_Parameter_Reverb(sd_buff_n - 25);	
+		}
+		else if(sd_buff_n > 29 && sd_buff_n <= 33)
+		{
+			sd_data_buffer[sd_buff_n] = Get_Parameter_PitchShifter(sd_buff_n - 30);	
+		}
+	}
+	
+		/* Zapis danych z bufora na karte SD  */
+		SD_state = BSP_SD_WriteBlocks(sd_data_buffer, BLOCK_START_ADDR, NUM_OF_BLOCKS, 10000);
+	
+		/* Czekaj az karta SD bedzie gotowa do wykonania kolejnej operacji */
+		while(BSP_SD_GetCardState() != SD_TRANSFER_OK)
+		{
+		}
+		
+		/* Informacja, czy operacja sie udala */
+		if (SD_state != MSD_OK)
+		{
+			BSP_LCD_SetTextColor(LCD_COLOR_RED);
+			BSP_LCD_SetBackColor(LCD_COLOR_LIGHTGRAY);
+			BSP_LCD_SetFont(&Font12);
+			BSP_LCD_DisplayStringAt(SD_INFO_XPOS, SD_INFO_YPOS, (uint8_t *)"BLAD SD", LEFT_MODE);
+		}else
+		{ 
+			BSP_LCD_SetTextColor(LCD_COLOR_GREEN);
+			BSP_LCD_SetBackColor(LCD_COLOR_LIGHTGRAY);
+			BSP_LCD_SetFont(&Font12);
+			BSP_LCD_DisplayStringAt(SD_INFO_XPOS, SD_INFO_YPOS, (uint8_t *)"OK", LEFT_MODE);
+			
+			memset(sd_data_buffer, 0, BUFFER_WORDS_SIZE);
+		}
+	}
+}
+
+/**
+* @brief  Realizacja przerwania od licznika TIM10: sprawdzenie stanu panelu dotykowego i obsluga interakcji uzytkownika
+  * @param  *htim: wskaznik na licznik, ktory zglasza przerwanie 
+  * @retval Brak
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{		
+	if(htim->Instance == TIM10)
+{
+		/* Sprawdz jaki jest stan wyswietlacza dotykowego oraz czy uzytkownik go dotknal */
+		BSP_TS_GetState(&ts);
+		if(ts.touchDetected)
+		{
+			if(is_codec_initialized == AUDIO_OK)
+				BSP_AUDIO_OUT_SetMute(AUDIO_MUTE_ON);
+			/* Pobierz koordynaty dotknietego ekranu */
+			x = ts.touchX[0];
+			y = ts.touchY[0];
+			/* Sprawdz, które okno jest obecnie aktywne */
+			Current_Window_Select();
+			/* Ustawienie flagi 'Przycisk wcisniety' */
+			is_button_active = BUTTON_ACTIVE;
+			if(is_codec_initialized == AUDIO_OK)
+				BSP_AUDIO_OUT_SetMute(AUDIO_MUTE_OFF);
+		}
+		else
+		{
+			/* Ustawienie flagi 'Przycisk nie wcisniety' */
+			is_button_active = BUTTON_NOT_ACTIVE;
+		}
+	
+		/* Realizacja animacja 'migania' napisu startowego */
+		if(current_window == START_WINDOW)
+		{
+			if(second_counter == 10)
+			{
+				Display_StartWindow(1);
+			}else if(second_counter == 20)
+			{
+				second_counter = 0;
+				Display_StartWindow(0);
+			}								
+			second_counter += 1;
+		}  
+	}
+}
 
 /* USER CODE END 4 */
 

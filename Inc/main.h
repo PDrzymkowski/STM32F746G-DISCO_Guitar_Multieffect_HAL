@@ -37,6 +37,7 @@ extern "C" {
 #include "stm32746g_discovery_ts.h"
 #include "stm32746g_discovery_lcd.h"
 #include "stm32746g_discovery_audio.h"
+#include "stm32746g_discovery_sd.h"
 
 #include <stdio.h>
 #include "math.h"
@@ -44,6 +45,9 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+/**
+*  Stan efektu: wlaczony/wylaczony
+  */
 typedef enum
 {
 	ACTIVE = 0,
@@ -51,12 +55,18 @@ typedef enum
 	
 }IS_EFFECT_ACTIVE_StateTypeDef;
 
+/**
+  *  Stan przyciskow panelu dotykowego
+  */
 typedef enum
 {
 	BUTTON_ACTIVE = 0,
 	BUTTON_NOT_ACTIVE = 1,
 }IS_BUTTON_ACTIVE_StateTypeDef;
 
+/**
+  *  Typ filtra dla efektow
+  */
 typedef enum
 {
 	SOI = 0,
@@ -90,16 +100,24 @@ void Display_MainWindow(void);
 #define RGB565_BYTE_PER_PIXEL     2
 #define ARBG8888_BYTE_PER_PIXEL   4
 
-/* Camera have a max resolution of VGA : 640x480 */
+/* Rozdzielczosc ekranu wyswietlacza LCD */
 #define CAMERA_RES_MAX_X          640
 #define CAMERA_RES_MAX_Y          480
 
-#define AUDIO_BLOCK_SIZE   ((uint32_t)2048)
+
+/* Rozmiary bloku danych, bufora probek oraz adresu bufora */
+#define AUDIO_BLOCK_SIZE   ((uint32_t)256)
 #define AUDIO_BUFFER_SIZE ((uint32_t)45056)
 #define AUDIO_BUFFER_IN    AUDIO_REC_START_ADDR     /* In SDRAM */
 #define AUDIO_BUFFER_OUT   (AUDIO_REC_START_ADDR + (AUDIO_BLOCK_SIZE * 2)) /* In SDRAM */
 
+/* Kod karty SD znajdujacy sie na pcozatku bloku danych, definiuje poprawnosc i kompletnosc parametrow efektow zapisanych na karcie */
+#define SD_CODE											9876
 
+
+#define BLOCK_START_ADDR         0     /* Block start address      */
+#define NUM_OF_BLOCKS            1     /* Total number of blocks   */
+#define BUFFER_WORDS_SIZE        (BLOCKSIZE * NUM_OF_BLOCKS) /* Total data size in bytes */
 
 /**
   * @brief  LCD FB_StartAddress

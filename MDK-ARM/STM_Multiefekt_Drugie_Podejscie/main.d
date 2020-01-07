@@ -38,6 +38,8 @@ stm_multiefekt_drugie_podejscie\main.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm3
 stm_multiefekt_drugie_podejscie\main.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pwr.h
 stm_multiefekt_drugie_podejscie\main.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pwr_ex.h
 stm_multiefekt_drugie_podejscie\main.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_sai.h
+stm_multiefekt_drugie_podejscie\main.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_sd.h
+stm_multiefekt_drugie_podejscie\main.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_ll_sdmmc.h
 stm_multiefekt_drugie_podejscie\main.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_tim.h
 stm_multiefekt_drugie_podejscie\main.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_tim_ex.h
 stm_multiefekt_drugie_podejscie\main.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_uart.h
@@ -53,14 +55,12 @@ stm_multiefekt_drugie_podejscie\main.o: ..\GUI Files\fonts\fonts.h
 stm_multiefekt_drugie_podejscie\main.o: ..\HAL Drivers Discovery\stm32746g_discovery_audio.h
 stm_multiefekt_drugie_podejscie\main.o: ..\Audio Codec Files\wm8994\wm8994.h
 stm_multiefekt_drugie_podejscie\main.o: ..\Audio Codec Files\wm8994\audio.h
+stm_multiefekt_drugie_podejscie\main.o: ..\HAL Drivers Discovery\stm32746g_discovery_sd.h
 stm_multiefekt_drugie_podejscie\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 stm_multiefekt_drugie_podejscie\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 stm_multiefekt_drugie_podejscie\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/volume.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/GUI.h
-stm_multiefekt_drugie_podejscie\main.o: ../Drivers/CMSIS/Include/arm_math.h
-stm_multiefekt_drugie_podejscie\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\float.h
-stm_multiefekt_drugie_podejscie\main.o: ../Drivers/CMSIS/Include/arm_common_tables.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/overdrive.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/GUI.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/chorus.h
@@ -73,6 +73,8 @@ stm_multiefekt_drugie_podejscie\main.o: ../Inc/pitch_shifter.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/GUI.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/tremolo.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/GUI.h
+stm_multiefekt_drugie_podejscie\main.o: ../Drivers/CMSIS/Include/arm_math.h
+stm_multiefekt_drugie_podejscie\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\float.h
+stm_multiefekt_drugie_podejscie\main.o: ../Drivers/CMSIS/Include/arm_common_tables.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/flanger.h
 stm_multiefekt_drugie_podejscie\main.o: ../Inc/GUI.h
-stm_multiefekt_drugie_podejscie\main.o: ../Inc/tim.h

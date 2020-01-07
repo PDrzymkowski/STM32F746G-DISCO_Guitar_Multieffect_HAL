@@ -38,6 +38,8 @@ stm_multiefekt_drugie_podejscie\stm32746g_discovery_sdram.o: ../Drivers/STM32F7x
 stm_multiefekt_drugie_podejscie\stm32746g_discovery_sdram.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pwr.h
 stm_multiefekt_drugie_podejscie\stm32746g_discovery_sdram.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pwr_ex.h
 stm_multiefekt_drugie_podejscie\stm32746g_discovery_sdram.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_sai.h
+stm_multiefekt_drugie_podejscie\stm32746g_discovery_sdram.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_sd.h
+stm_multiefekt_drugie_podejscie\stm32746g_discovery_sdram.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_ll_sdmmc.h
 stm_multiefekt_drugie_podejscie\stm32746g_discovery_sdram.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_tim.h
 stm_multiefekt_drugie_podejscie\stm32746g_discovery_sdram.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_tim_ex.h
 stm_multiefekt_drugie_podejscie\stm32746g_discovery_sdram.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_uart.h

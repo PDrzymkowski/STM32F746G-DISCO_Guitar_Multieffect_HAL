@@ -893,9 +893,8 @@ uint8_t BSP_AUDIO_IN_OUT_Init(uint16_t InputDevice, uint16_t OutputDevice, uint3
   uint8_t ret = AUDIO_ERROR;
   uint32_t deviceid = 0x00;
   uint32_t slot_active;
-	//MOJE
 
-  if (InputDevice != INPUT_DEVICE_INPUT_LINE_1)  /* Only MICROPHONE_2 input supported */
+  if (InputDevice != INPUT_DEVICE_INPUT_LINE_1)  /* Only LINE_1 input supported */
   {
     ret = AUDIO_ERROR;
   }
@@ -959,7 +958,7 @@ uint8_t BSP_AUDIO_IN_OUT_Init(uint16_t InputDevice, uint16_t OutputDevice, uint3
     if(ret == AUDIO_OK)
     {
       /* Initialize the codec internal registers */
-			 audio_drv->Init(AUDIO_I2C_ADDRESS, OutputDevice | InputDevice, 50, AudioFreq);
+			 audio_drv->Init(AUDIO_I2C_ADDRESS, OutputDevice | InputDevice, 70, AudioFreq);
     }
   }
   return ret;
