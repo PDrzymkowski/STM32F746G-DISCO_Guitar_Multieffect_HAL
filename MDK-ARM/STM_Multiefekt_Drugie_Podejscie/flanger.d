@@ -6,15 +6,15 @@ stm_multiefekt_drugie_podejscie\flanger.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/s
 stm_multiefekt_drugie_podejscie\flanger.o: ../Inc/stm32f7xx_hal_conf.h
 stm_multiefekt_drugie_podejscie\flanger.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_rcc.h
 stm_multiefekt_drugie_podejscie\flanger.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_def.h
-stm_multiefekt_drugie_podejscie\flanger.o: ../Drivers/CMSIS/Device/ST/STM32F7xx/Include/stm32f7xx.h
-stm_multiefekt_drugie_podejscie\flanger.o: ../Drivers/CMSIS/Device/ST/STM32F7xx/Include/stm32f746xx.h
-stm_multiefekt_drugie_podejscie\flanger.o: ../Drivers/CMSIS/Include/core_cm7.h
+stm_multiefekt_drugie_podejscie\flanger.o: C:\Keil_v5\ARM\PACK\Keil\STM32F7xx_DFP\2.11.0\Drivers\CMSIS\Device\ST\STM32F7xx\Include\stm32f7xx.h
+stm_multiefekt_drugie_podejscie\flanger.o: C:\Keil_v5\ARM\PACK\Keil\STM32F7xx_DFP\2.11.0\Drivers\CMSIS\Device\ST\STM32F7xx\Include\stm32f746xx.h
+stm_multiefekt_drugie_podejscie\flanger.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include\core_cm7.h
 stm_multiefekt_drugie_podejscie\flanger.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-stm_multiefekt_drugie_podejscie\flanger.o: ../Drivers/CMSIS/Include/cmsis_version.h
-stm_multiefekt_drugie_podejscie\flanger.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
-stm_multiefekt_drugie_podejscie\flanger.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
-stm_multiefekt_drugie_podejscie\flanger.o: ../Drivers/CMSIS/Include/mpu_armv7.h
-stm_multiefekt_drugie_podejscie\flanger.o: ../Drivers/CMSIS/Device/ST/STM32F7xx/Include/system_stm32f7xx.h
+stm_multiefekt_drugie_podejscie\flanger.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include\cmsis_version.h
+stm_multiefekt_drugie_podejscie\flanger.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include\cmsis_compiler.h
+stm_multiefekt_drugie_podejscie\flanger.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include\cmsis_armcc.h
+stm_multiefekt_drugie_podejscie\flanger.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include\mpu_armv7.h
+stm_multiefekt_drugie_podejscie\flanger.o: C:\Keil_v5\ARM\PACK\Keil\STM32F7xx_DFP\2.11.0\Drivers\CMSIS\Device\ST\STM32F7xx\Include\system_stm32f7xx.h
 stm_multiefekt_drugie_podejscie\flanger.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal.h
 stm_multiefekt_drugie_podejscie\flanger.o: ../Drivers/STM32F7xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
 stm_multiefekt_drugie_podejscie\flanger.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
@@ -60,7 +60,7 @@ stm_multiefekt_drugie_podejscie\flanger.o: ..\Audio Codec Files\wm8994\audio.h
 stm_multiefekt_drugie_podejscie\flanger.o: ..\HAL Drivers Discovery\stm32746g_discovery_sd.h
 stm_multiefekt_drugie_podejscie\flanger.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 stm_multiefekt_drugie_podejscie\flanger.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
-stm_multiefekt_drugie_podejscie\flanger.o: ../Drivers/CMSIS/Include/arm_math.h
+stm_multiefekt_drugie_podejscie\flanger.o: ..\Drivers\CMSIS\DSP\Include\arm_math.h
 stm_multiefekt_drugie_podejscie\flanger.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 stm_multiefekt_drugie_podejscie\flanger.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\float.h
-stm_multiefekt_drugie_podejscie\flanger.o: ../Drivers/CMSIS/Include/arm_common_tables.h
+stm_multiefekt_drugie_podejscie\flanger.o: ..\Drivers\CMSIS\DSP\Include\arm_common_tables.h

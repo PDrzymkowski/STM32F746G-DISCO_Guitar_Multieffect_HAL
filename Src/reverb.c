@@ -9,16 +9,17 @@
 
 #include "reverb.h"
 
-uint8_t room_size_reverb = 50;
-float depth_reverb = 0.5;
-uint8_t pre_delay1_reverb = 10;
-uint8_t pre_delay2_reverb = 10;
-uint8_t is_active_reverb = NOT_ACTIVE;
-char room_size_str_reverb[3];
-char depth_str_reverb[3];
-char pre_delay1_str_reverb[3];
-char pre_delay2_str_reverb[3];
+static uint8_t room_size_reverb = 50;
+static float depth_reverb = 0.5;
+static uint8_t pre_delay1_reverb = 10;
+static uint8_t pre_delay2_reverb = 10;
+static uint8_t is_active_reverb = NOT_ACTIVE;
+static char room_size_str_reverb[3];
+static char depth_str_reverb[3];
+static char pre_delay1_str_reverb[3];
+static char pre_delay2_str_reverb[3];
 extern uint8_t is_button_active;
+extern char current_info_text[40];
 
 
 uint32_t Get_Parameter_Reverb(uint8_t parameter)
@@ -228,6 +229,7 @@ void Display_On_Off_Info_Reverb(void)
 			BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
 			BSP_LCD_DisplayStringAt(ON_OFF_BUTTON_XPOS-80, ON_OFF_BUTTON_YPOS+(ON_OFF_BUTTON_HEIGHT/3), (uint8_t *)"WYLACZONY", LEFT_MODE);
 			is_active_reverb = NOT_ACTIVE;
+			sprintf(current_info_text, "Wylaczono efekt Reverb");
 		}else if(is_active_reverb == NOT_ACTIVE)
 		{
 			BSP_LCD_SetTextColor(LCD_COLOR_GREEN);
@@ -237,6 +239,7 @@ void Display_On_Off_Info_Reverb(void)
 			BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
 			BSP_LCD_DisplayStringAt(ON_OFF_BUTTON_XPOS-80, ON_OFF_BUTTON_YPOS+(ON_OFF_BUTTON_HEIGHT/3), (uint8_t *)"WLACZONY", LEFT_MODE);
 			is_active_reverb= ACTIVE;	
+			sprintf(current_info_text, "Wlaczono efekt Reverb");
 		}
 	} 
 }

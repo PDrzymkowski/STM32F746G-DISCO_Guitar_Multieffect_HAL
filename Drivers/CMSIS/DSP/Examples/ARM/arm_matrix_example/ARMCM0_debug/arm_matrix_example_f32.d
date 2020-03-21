@@ -1,9 +1,0 @@
-.\armcm0_debug\arm_matrix_example_f32.o: arm_matrix_example_f32.c
-.\armcm0_debug\arm_matrix_example_f32.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\DSP\Include\arm_math.h
-.\armcm0_debug\arm_matrix_example_f32.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include\cmsis_compiler.h
-.\armcm0_debug\arm_matrix_example_f32.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-.\armcm0_debug\arm_matrix_example_f32.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include\cmsis_armcc.h
-.\armcm0_debug\arm_matrix_example_f32.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
-.\armcm0_debug\arm_matrix_example_f32.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
-.\armcm0_debug\arm_matrix_example_f32.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\float.h
-.\armcm0_debug\arm_matrix_example_f32.o: math_helper.h

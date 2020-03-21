@@ -1,9 +1,9 @@
 stm_multiefekt_drugie_podejscie\arm_common_tables.o: ..\Drivers\CMSIS\DSP\Source\CommonTables\arm_common_tables.c
-stm_multiefekt_drugie_podejscie\arm_common_tables.o: ../Drivers/CMSIS/Include/arm_math.h
-stm_multiefekt_drugie_podejscie\arm_common_tables.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
+stm_multiefekt_drugie_podejscie\arm_common_tables.o: ..\Drivers\CMSIS\DSP\Include\arm_math.h
+stm_multiefekt_drugie_podejscie\arm_common_tables.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include\cmsis_compiler.h
 stm_multiefekt_drugie_podejscie\arm_common_tables.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-stm_multiefekt_drugie_podejscie\arm_common_tables.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
+stm_multiefekt_drugie_podejscie\arm_common_tables.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include\cmsis_armcc.h
 stm_multiefekt_drugie_podejscie\arm_common_tables.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 stm_multiefekt_drugie_podejscie\arm_common_tables.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 stm_multiefekt_drugie_podejscie\arm_common_tables.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\float.h
-stm_multiefekt_drugie_podejscie\arm_common_tables.o: ../Drivers/CMSIS/Include/arm_common_tables.h
+stm_multiefekt_drugie_podejscie\arm_common_tables.o: ..\Drivers\CMSIS\DSP\Include\arm_common_tables.h

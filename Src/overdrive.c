@@ -9,12 +9,13 @@
 
 #include "overdrive.h"
 
-float clip_value_overdrive = 0.5;
-float gain_overdrive = 0.5;
-uint8_t is_active_overdrive = NOT_ACTIVE;
-char clip_value_str_overdrive[3];
-char gain_str_overdrive[3];
+static float clip_value_overdrive = 0.5;
+static float gain_overdrive = 0.5;
+static uint8_t is_active_overdrive = NOT_ACTIVE;
+static char clip_value_str_overdrive[3];
+static char gain_str_overdrive[3];
 extern uint8_t is_button_active;
+extern char current_info_text[40];
 
 
 uint32_t Get_Parameter_Overdrive(uint8_t parameter)
@@ -165,6 +166,7 @@ void Display_On_Off_Info_Overdrive()
 			BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
 			BSP_LCD_DisplayStringAt(ON_OFF_BUTTON_XPOS-80, ON_OFF_BUTTON_YPOS+(ON_OFF_BUTTON_HEIGHT/3), (uint8_t *)"WYLACZONY", LEFT_MODE);
 			is_active_overdrive = NOT_ACTIVE;
+			sprintf(current_info_text, "Wylaczono efekt Overdrive");
 		}else if(is_active_overdrive == NOT_ACTIVE)
 		{
 			BSP_LCD_SetTextColor(LCD_COLOR_GREEN);
@@ -174,6 +176,7 @@ void Display_On_Off_Info_Overdrive()
 			BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
 			BSP_LCD_DisplayStringAt(ON_OFF_BUTTON_XPOS-80, ON_OFF_BUTTON_YPOS+(ON_OFF_BUTTON_HEIGHT/3), (uint8_t *)"WLACZONY", LEFT_MODE);
 			is_active_overdrive = ACTIVE;	
+			sprintf(current_info_text, "Wlaczono efekt Overdrive");
 		}
 	}	
 }

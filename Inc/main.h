@@ -1,10 +1,10 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
+  ************************************************************************************
   * @file           : main.h
-  * @brief          : Header for main.c file.
-  *                   This file contains the common defines of the application.
-  ******************************************************************************
+  * @brief         : Plik naglowkowy pliku main.c
+  *  Zawiera makro, pliki naglowkowe oraz prototypy funkcji pliku main.c
+  ************************************************************************************
   * @attention
   *
   * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
@@ -73,6 +73,7 @@ typedef enum
 	NOI = 1,
 }FILTER_VERSION_StateTypeDef;
 
+
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -115,9 +116,9 @@ void Display_MainWindow(void);
 #define SD_CODE											9876
 
 
-#define BLOCK_START_ADDR         0     /* Block start address      */
-#define NUM_OF_BLOCKS            1     /* Total number of blocks   */
-#define BUFFER_WORDS_SIZE        (BLOCKSIZE * NUM_OF_BLOCKS) /* Total data size in bytes */
+#define BLOCK_START_ADDR         0     /* Startowy blok pamieci */
+#define NUM_OF_BLOCKS            1     /* Calkowita liczba blokow danych audio   */
+#define BUFFER_WORDS_SIZE        (BLOCKSIZE * NUM_OF_BLOCKS) /* Calkowity rozmiar danych audio w bajtach */
 
 /**
   * @brief  LCD FB_StartAddress

@@ -9,9 +9,10 @@
 
 #include "volume.h"
 
-uint8_t current_volume = 70;
-uint8_t current_volume_temp;
-char current_volume_str[3];
+static uint8_t current_volume = 70;
+static uint8_t current_volume_temp;
+static char current_volume_str[3];
+extern char current_info_text[40];
 
 
 uint32_t Get_Parameter_Volume(void)
@@ -145,5 +146,6 @@ void VolumeWindow_Touch_Detection(uint16_t x, uint16_t y)
 		 BSP_LCD_SetFont(&Font24);
 		 BSP_LCD_DisplayStringAt(APPLY_BUTTON_XPOS+APPLY_BUTTON_WIDTH+20, APPLY_BUTTON_YPOS+(APPLY_BUTTON_HEIGHT/3), (uint8_t *)"ERROR", LEFT_MODE);
 		}			
+		sprintf(current_info_text, "Zmieniono glosnosc na wartosc: %d%%", current_volume);
 	}
 }

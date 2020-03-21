@@ -1,9 +1,0 @@
---cpu Cortex-M0
-".\armcm0_debug\math_helper.o"
-".\armcm0_debug\arm_matrix_example_f32.o"
-"..\..\..\Lib\ARM\arm_cortexM0l_math.lib"
-".\armcm0_debug\startup_armcm0.o"
-".\armcm0_debug\system_armcm0.o"
---ro-base 0x00000000 --entry 0x00000000 --rw-base 0x20000000 --entry Reset_Handler --first __Vectors --strict --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
---info sizes --info totals --info unused --info veneers
---list ".\ARMCM0_debug\arm_matrix_example.map" -o .\ARMCM0_debug\arm_matrix_example.axf

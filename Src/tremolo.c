@@ -7,16 +7,16 @@
   */
 /* USER CODE END Header */
 
-
 #include "tremolo.h"
 
-uint8_t rate_tremolo = 5;
-float depth_tremolo = 0.5f;
-uint8_t shape_tremolo = SIN;
-uint8_t is_active_tremolo = NOT_ACTIVE;
-char rate_str_tremolo[3];
-char depth_str_tremolo[3];
+static uint8_t rate_tremolo = 5;
+static float depth_tremolo = 0.5f;
+static uint8_t shape_tremolo = SIN;
+static uint8_t is_active_tremolo = NOT_ACTIVE;
+static char rate_str_tremolo[3];
+static char depth_str_tremolo[3];
 extern uint8_t is_button_active;
+extern char current_info_text[40];
 
 
 uint32_t Get_Parameter_Tremolo(uint8_t parameter)
@@ -212,8 +212,6 @@ float Triangle_Signal(uint16_t x, uint16_t period)
 		return ( 1 - ((float)(x) *4/period) );
 }
 
-
-
 void Display_On_Off_Info_Tremolo(void)
 {
 	if(is_button_active==BUTTON_NOT_ACTIVE)
@@ -227,6 +225,7 @@ void Display_On_Off_Info_Tremolo(void)
 		BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
 		BSP_LCD_DisplayStringAt(ON_OFF_BUTTON_XPOS-80, ON_OFF_BUTTON_YPOS+(ON_OFF_BUTTON_HEIGHT/3), (uint8_t *)"WYLACZONY", LEFT_MODE);
 		is_active_tremolo = NOT_ACTIVE;
+		sprintf(current_info_text, "Wylaczono efekt Tremolo");
 	}else if(is_active_tremolo == NOT_ACTIVE)
 	{
 		BSP_LCD_SetTextColor(LCD_COLOR_GREEN);
@@ -236,6 +235,7 @@ void Display_On_Off_Info_Tremolo(void)
 		BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
 		BSP_LCD_DisplayStringAt(ON_OFF_BUTTON_XPOS-80, ON_OFF_BUTTON_YPOS+(ON_OFF_BUTTON_HEIGHT/3), (uint8_t *)"WLACZONY", LEFT_MODE);
 		is_active_tremolo= ACTIVE;	
+		sprintf(current_info_text, "Wlaczono efekt Tremolo");
 		}
 	} 
 }

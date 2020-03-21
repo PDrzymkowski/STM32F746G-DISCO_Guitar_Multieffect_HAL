@@ -69,10 +69,11 @@
 #define APPLY_BUTTON_XPOS													190
 #define APPLY_BUTTON_YPOS												BSP_LCD_GetYSize() - 50
 
-#define SD_CARD_SAVE_XPOS												BSP_LCD_GetXSize() - 120
-#define SD_CARD_SAVE_YPOS												BSP_LCD_GetYSize() - 45
-#define SET_DEFAULT_BUTTON_XPOS							SD_CARD_SAVE_XPOS - SD_CARD_SAVE_WIDTH - 20
-#define SET_DEFAULT_BUTTON_YPOS							SD_CARD_SAVE_YPOS
+#define SET_DEFAULT_BUTTON_XPOS							10
+#define SET_DEFAULT_BUTTON_YPOS							BUTTON_YPOS(5) + 10
+#define SD_CARD_SAVE_XPOS												BSP_LCD_GetXSize() - SD_CARD_SAVE_WIDTH - 10
+#define SD_CARD_SAVE_YPOS												BSP_LCD_GetYSize() - SD_CARD_SAVE_HEIGHT - 10	  
+
 
 /* Wymiary przycisków */
 #define BUTTON_WIDTH																	 	100
@@ -85,8 +86,9 @@
 #define VOLUME_BUTTON_WIDTH											50
 #define APPLY_BUTTON_WIDTH												100
 #define DELAY_10_BUTTON_WIDTH										25			
-#define SD_CARD_SAVE_WIDTH												110		
-#define SET_DEFAULT_BUTTON_WIDTH					SD_CARD_SAVE_WIDTH
+#define SET_DEFAULT_BUTTON_WIDTH						110
+#define SD_CARD_SAVE_WIDTH												140
+
 
 #define BUTTON_HEIGHT       					  									70
 #define PARAM_BUTTON_HEIGHT											  30
@@ -98,14 +100,16 @@
 #define VOLUME_BUTTON_HEIGHT											35
 #define APPLY_BUTTON_HEIGHT												35
 #define DELAY_10_BUTTON_HEIGHT										20
-#define SD_CARD_SAVE_HEIGHT												35		
-#define SET_DEFAULT_BUTTON_HEIGHT					SD_CARD_SAVE_HEIGHT
+#define SET_DEFAULT_BUTTON_HEIGHT						55
+#define SD_CARD_SAVE_HEIGHT										  	35		
 
 
 /* Polozenie napisów */
-#define	TITLE_XPOS																					120
-#define	TITLE_YPOS																						15
+#define TITLE_XPOS																					120
+#define TITLE_YPOS																						15
 #define GREETING_TITLE_XPOS													80
 #define GREETING_TITLE_YPOS												110
-#define SD_INFO_XPOS																		SET_DEFAULT_BUTTON_XPOS - 50	
-#define SD_INFO_YPOS																		SET_DEFAULT_BUTTON_YPOS + SD_CARD_SAVE_HEIGHT/3
+#define INFO_XPOS																							20	
+#define INFO_YPOS																					225
+#define INFO_WIDTH																		  		250
+#define INFO_HEIGHT																					40

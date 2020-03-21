@@ -418,11 +418,6 @@
               <FilePath>..\Src\overdrive.c</FilePath>
             </File>
             <File>
-              <FileName>pitch_shifter.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\pitch_shifter.c</FilePath>
-            </File>
-            <File>
               <FileName>reverb.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\reverb.c</FilePath>
@@ -452,15 +447,10 @@
               <FileType>1</FileType>
               <FilePath>../Src/stm32f7xx_hal_msp.c</FilePath>
             </File>
-            <File>
-              <FileName>phase_vocoder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\phase_vocoder.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>Drivers/STM32F7xx_HAL_Driver</GroupName>
+          <GroupName>STM32F7xx_HAL_Driver</GroupName>
           <Files>
             <File>
               <FileName>stm32f7xx_hal_ltdc.c</FileName>
@@ -605,7 +595,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Drivers/CMSIS</GroupName>
+          <GroupName>CMSIS</GroupName>
           <Files>
             <File>
               <FileName>system_stm32f7xx.c</FileName>
@@ -623,89 +613,14 @@
               <FilePath>..\Drivers\CMSIS\DSP\Source\CommonTables\arm_common_tables.c</FilePath>
             </File>
             <File>
-              <FileName>arm_rfft_fast_init_f32.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\CMSIS\DSP\Source\TransformFunctions\arm_rfft_fast_init_f32.c</FilePath>
-            </File>
-            <File>
-              <FileName>arm_scale_f32.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\CMSIS\DSP\Source\BasicMathFunctions\arm_scale_f32.c</FilePath>
-            </File>
-            <File>
-              <FileName>arm_copy_f32.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\CMSIS\DSP\Source\SupportFunctions\arm_copy_f32.c</FilePath>
-            </File>
-            <File>
-              <FileName>arm_q15_to_float.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\CMSIS\DSP\Source\SupportFunctions\arm_q15_to_float.c</FilePath>
-            </File>
-            <File>
-              <FileName>arm_sub_f32.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\CMSIS\DSP\Source\BasicMathFunctions\arm_sub_f32.c</FilePath>
-            </File>
-            <File>
               <FileName>arm_sin_f32.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\CMSIS\DSP\Source\FastMathFunctions\arm_sin_f32.c</FilePath>
             </File>
-            <File>
-              <FileName>arm_rfft_fast_f32.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\CMSIS\DSP\Source\TransformFunctions\arm_rfft_fast_f32.c</FilePath>
-            </File>
-            <File>
-              <FileName>arm_mult_f32.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\CMSIS\DSP\Source\BasicMathFunctions\arm_mult_f32.c</FilePath>
-            </File>
-            <File>
-              <FileName>arm_cmplx_mag_f32.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\CMSIS\DSP\Source\ComplexMathFunctions\arm_cmplx_mag_f32.c</FilePath>
-            </File>
-            <File>
-              <FileName>arm_cfft_f32.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\CMSIS\DSP\Source\TransformFunctions\arm_cfft_f32.c</FilePath>
-            </File>
-            <File>
-              <FileName>arm_add_f32.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\CMSIS\DSP\Source\BasicMathFunctions\arm_add_f32.c</FilePath>
-            </File>
-            <File>
-              <FileName>arm_bitreversal2.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\CMSIS\DSP\Source\TransformFunctions\arm_bitreversal2.c</FilePath>
-            </File>
-            <File>
-              <FileName>arm_bitreversal.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\CMSIS\DSP\Source\TransformFunctions\arm_bitreversal.c</FilePath>
-            </File>
-            <File>
-              <FileName>arm_cfft_radix8_f32.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\CMSIS\DSP\Source\TransformFunctions\arm_cfft_radix8_f32.c</FilePath>
-            </File>
-            <File>
-              <FileName>arm_fill_f32.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\CMSIS\DSP\Source\SupportFunctions\arm_fill_f32.c</FilePath>
-            </File>
-            <File>
-              <FileName>arm_float_to_q15.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\CMSIS\DSP\Source\SupportFunctions\arm_float_to_q15.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>HAL Drivers Discovery</GroupName>
+          <GroupName>Board Support Package Files</GroupName>
           <Files>
             <File>
               <FileName>stm32746g_discovery.c</FileName>
@@ -740,7 +655,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>GUI Files/ft5336</GroupName>
+          <GroupName>GUI Files</GroupName>
           <Files>
             <File>
               <FileName>ft5336.c</FileName>
@@ -750,7 +665,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Audio Codec Files/wm8994</GroupName>
+          <GroupName>Audio Codec Files</GroupName>
           <Files>
             <File>
               <FileName>wm8994.c</FileName>
@@ -758,9 +673,6 @@
               <FilePath>..\Audio Codec Files\wm8994\wm8994.c</FilePath>
             </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>Peripherials/SD Card</GroupName>
         </Group>
         <Group>
           <GroupName>::CMSIS</GroupName>

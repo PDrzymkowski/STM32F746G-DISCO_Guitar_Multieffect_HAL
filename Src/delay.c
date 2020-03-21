@@ -9,13 +9,14 @@
 
 #include "delay.h"
 
-uint16_t delay_delay = 500;
-char delay_str_delay[3];
-float gain_delay = 0.5;
-char gain_str_delay[3];
-uint8_t version_delay = SOI;
-uint8_t is_active_delay = NOT_ACTIVE;
+static uint16_t delay_delay = 500;
+static char delay_str_delay[3];
+static float gain_delay = 0.5;
+static char gain_str_delay[3];
+static uint8_t version_delay = SOI;
+static uint8_t is_active_delay = NOT_ACTIVE;
 extern uint8_t is_button_active;
+extern char current_info_text[40];
 
 
 uint32_t Get_Parameter_Delay(uint8_t parameter)
@@ -233,6 +234,7 @@ void Display_On_Off_Info_Delay(void)
 			BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
 			BSP_LCD_DisplayStringAt(ON_OFF_BUTTON_XPOS-80, ON_OFF_BUTTON_YPOS+(ON_OFF_BUTTON_HEIGHT/3), (uint8_t *)"WYLACZONY", LEFT_MODE);
 			is_active_delay = NOT_ACTIVE; 
+			sprintf(current_info_text, "Wylaczono efekt Delay");
 		}else if(is_active_delay == NOT_ACTIVE)
 		{
 			BSP_LCD_SetTextColor(LCD_COLOR_GREEN);
@@ -242,9 +244,11 @@ void Display_On_Off_Info_Delay(void)
 			BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
 			BSP_LCD_DisplayStringAt(ON_OFF_BUTTON_XPOS-80, ON_OFF_BUTTON_YPOS+(ON_OFF_BUTTON_HEIGHT/3), (uint8_t *)"WLACZONY", LEFT_MODE);
 			is_active_delay= ACTIVE;	
+			sprintf(current_info_text, "Wlaczono efekt Delay");
 		}
 	} 
 }
+
 void Delay(uint16_t *data_in, uint16_t* data_out, uint32_t count)
 {
 	uint32_t delay_samples = (delay_delay*44100)/1000;

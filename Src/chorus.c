@@ -12,19 +12,20 @@
 #include "arm_math.h"
 #include "arm_common_tables.h"
 
-uint8_t delay_chorus = 5;
-float rate1_chorus = 0.2;
-float rate2_chorus = 0.2;
-float depth1_chorus = 0.5;
-float depth2_chorus = 0.5;
-uint8_t version_chorus = SOI;
-uint8_t is_active_chorus = NOT_ACTIVE;
-char delay_str_chorus[3];
-char  rate1_str_chorus[3];
-char rate2_str_chorus[3];
-char depth1_str_chorus[3];
-char depth2_str_chorus[3];
+static uint8_t delay_chorus = 5;
+static float rate1_chorus = 0.2;
+static float rate2_chorus = 0.2;
+static float depth1_chorus = 0.5;
+static float depth2_chorus = 0.5;
+static uint8_t version_chorus = SOI;
+static uint8_t is_active_chorus = NOT_ACTIVE;
+static char delay_str_chorus[3];
+static char  rate1_str_chorus[3];
+static char rate2_str_chorus[3];
+static char depth1_str_chorus[3];
+static char depth2_str_chorus[3];
 extern uint8_t is_button_active;
+extern char current_info_text[40];
 
 
 uint32_t Get_Parameter_Chorus(uint8_t parameter)
@@ -298,6 +299,7 @@ void Display_On_Off_Info_Chorus(void)
 			BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
 			BSP_LCD_DisplayStringAt(ON_OFF_BUTTON_XPOS-80, ON_OFF_BUTTON_YPOS+(ON_OFF_BUTTON_HEIGHT/3), (uint8_t *)"WYLACZONY", LEFT_MODE);
 			is_active_chorus = NOT_ACTIVE;
+			sprintf(current_info_text, "Wylaczono efekt Chorus");
 		}else if(is_active_chorus == NOT_ACTIVE)
 		{
 			BSP_LCD_SetTextColor(LCD_COLOR_GREEN);
@@ -307,6 +309,7 @@ void Display_On_Off_Info_Chorus(void)
 			BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
 			BSP_LCD_DisplayStringAt(ON_OFF_BUTTON_XPOS-80, ON_OFF_BUTTON_YPOS+(ON_OFF_BUTTON_HEIGHT/3), (uint8_t *)"WLACZONY", LEFT_MODE);
 			is_active_chorus= ACTIVE;	
+			sprintf(current_info_text, "Wlaczono efekt Chorus");
 		}
 	} 
 }

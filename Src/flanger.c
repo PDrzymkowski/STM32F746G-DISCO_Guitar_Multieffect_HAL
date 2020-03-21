@@ -9,17 +9,16 @@
 
 #include "flanger.h"
 
-uint8_t delay_flanger = 10;
-float rate_flanger = 0.5;
-float gain_flanger = 0.5;
-uint8_t version_flanger = SOI;
-uint8_t is_active_flanger = NOT_ACTIVE;
-char delay_str_flanger[3];
-char rate_str_flanger[3];
-char gain_str_flanger[3];
-uint16_t flanger_n = 0;
-
+static uint8_t delay_flanger = 10;
+static float rate_flanger = 0.5;
+static float depth_flanger = 0.5;
+static uint8_t version_flanger = SOI;
+static uint8_t is_active_flanger = NOT_ACTIVE;
+static char delay_str_flanger[3];
+static char rate_str_flanger[3];
+static char depth_str_flanger[3];
 extern uint8_t is_button_active;
+extern char current_info_text[40];
 
 
 uint32_t Get_Parameter_Flanger(uint8_t parameter)
@@ -31,7 +30,7 @@ uint32_t Get_Parameter_Flanger(uint8_t parameter)
 		case 1:
 			return (uint32_t) (rate_flanger*100);
 		case 2:
-			return (uint32_t) (gain_flanger*100);
+			return (uint32_t) (depth_flanger*100);
 		case 3:
 			return (uint32_t) (version_flanger);
 		case 4:
@@ -40,11 +39,11 @@ uint32_t Get_Parameter_Flanger(uint8_t parameter)
 	return 0;
 }
 
-void Set_Parameters_Flanger(uint8_t delay, float rate, float gain, uint8_t version, uint8_t is_active)
+void Set_Parameters_Flanger(uint8_t delay, float rate, float depth, uint8_t version, uint8_t is_active)
 {
 	delay_flanger = delay;
 	rate_flanger = rate;
-	gain_flanger = gain;
+	depth_flanger = depth;
 	version_flanger = version;
 	is_button_active = is_active;
 }
@@ -138,17 +137,17 @@ void FlangerWindow_Touch_Detection(uint16_t x, uint16_t y)
 		/* Sprawdzenie przycisku zwiekszenia parametru Gain */		
 		}else if((x > GAIN_UP_BUTTON_XPOS) && (x < GAIN_UP_BUTTON_XPOS +PARAM_BUTTON_WIDTH))
 		{
-			if(gain_flanger<0.99f)
+			if(depth_flanger<0.99f)
 			{
-				gain_flanger +=0.01f;
+				depth_flanger +=0.01f;
 				Display_Current_Parameters_Flanger();
 			} 
 		/* Sprawdzenie przycisku zmniejszenia parametru Gain */		
 		}else if((x > GAIN_DOWN_BUTTON_XPOS) && (x < GAIN_DOWN_BUTTON_XPOS + PARAM_BUTTON_WIDTH))
 		{
-			if(gain_flanger>0.01f)
+			if(depth_flanger>0.01f)
 			{
-					gain_flanger -=0.01f;
+					depth_flanger -=0.01f;
 					Display_Current_Parameters_Flanger();
 			} 
 		}
@@ -213,8 +212,8 @@ void Display_Current_Parameters_Flanger(void)
 	
 	sprintf(delay_str_flanger, "%d", delay_flanger);
 	BSP_LCD_DisplayStringAt(DELAY_DOWN_BUTTON_XPOS+PARAM_BUTTON_WIDTH+30, PARAM1_BUTTON_YPOS+(PARAM_BUTTON_HEIGHT/2)-8, (uint8_t *)delay_str_flanger, LEFT_MODE);
-	sprintf(gain_str_flanger, "%.2f", gain_flanger);
-	BSP_LCD_DisplayStringAt(GAIN_DOWN_BUTTON_XPOS+PARAM_BUTTON_WIDTH+25, PARAM1_BUTTON_YPOS+(PARAM_BUTTON_HEIGHT/2)-8, (uint8_t *)gain_str_flanger, LEFT_MODE);
+	sprintf(depth_str_flanger, "%.2f", depth_flanger);
+	BSP_LCD_DisplayStringAt(GAIN_DOWN_BUTTON_XPOS+PARAM_BUTTON_WIDTH+25, PARAM1_BUTTON_YPOS+(PARAM_BUTTON_HEIGHT/2)-8, (uint8_t *)depth_str_flanger, LEFT_MODE);
 	sprintf(rate_str_flanger, "%.2f", rate_flanger);
 	BSP_LCD_DisplayStringAt(RATE2_DOWN_BUTTON_XPOS+PARAM_BUTTON_WIDTH+25, PARAM2_BUTTON_YPOS+(PARAM_BUTTON_HEIGHT/2)-8, (uint8_t *)rate_str_flanger, LEFT_MODE);
 }
@@ -232,6 +231,7 @@ void Display_On_Off_Info_Flanger(void)
 			BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
 			BSP_LCD_DisplayStringAt(ON_OFF_BUTTON_XPOS-80, ON_OFF_BUTTON_YPOS+(ON_OFF_BUTTON_HEIGHT/3), (uint8_t *)"WYLACZONY", LEFT_MODE);
 			is_active_flanger = NOT_ACTIVE;
+			sprintf(current_info_text, "Wylaczono efekt Flanger");
 		}else if(is_active_flanger == NOT_ACTIVE)
 		{
 			BSP_LCD_SetTextColor(LCD_COLOR_GREEN);
@@ -241,6 +241,7 @@ void Display_On_Off_Info_Flanger(void)
 			BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
 			BSP_LCD_DisplayStringAt(ON_OFF_BUTTON_XPOS-80, ON_OFF_BUTTON_YPOS+(ON_OFF_BUTTON_HEIGHT/3), (uint8_t *)"WLACZONY", LEFT_MODE);
 			is_active_flanger= ACTIVE;	
+			sprintf(current_info_text, "Wlaczono efekt Flanger");
 		}
 	} 
 }
@@ -253,6 +254,7 @@ void Flanger(uint16_t *data_in, uint16_t* data_out, uint32_t count)
 		uint16_t flanger_period = 44100 / rate_flanger;
 		uint16_t n;
 		uint16_t delay_samples;
+		static uint16_t flanger_n = 0;
 		float frequency_change = (float)(rate_flanger)/44100;
 		int16_t curr_sample;
 		int16_t prev_sample;
@@ -268,7 +270,7 @@ void Flanger(uint16_t *data_in, uint16_t* data_out, uint32_t count)
 				else
 					prev_sample = data_out[(n + AUDIO_BUFFER_SIZE - delay_samples) % AUDIO_BUFFER_SIZE];
 	
-				out_sample = (curr_sample + gain_flanger*prev_sample)/(1+gain_flanger);
+				out_sample = (curr_sample + depth_flanger*prev_sample)/(1+depth_flanger);
 				data_out[n] = (uint16_t) (out_sample);
 				flanger_n = (flanger_n + flanger_period + 1) % flanger_period;
 			}
