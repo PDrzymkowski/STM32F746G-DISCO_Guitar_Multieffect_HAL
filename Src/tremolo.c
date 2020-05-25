@@ -209,7 +209,8 @@ float Triangle_Signal(uint16_t x, uint16_t period)
 	if(x <= period/2)
 		return ( ((float)(x) *4/period) - 1 );
 	else
-		return ( 1 - ((float)(x) *4/period) );
+		return ( 3 - ((float)(x) *4/period) ); 
+	
 }
 
 void Display_On_Off_Info_Tremolo(void)

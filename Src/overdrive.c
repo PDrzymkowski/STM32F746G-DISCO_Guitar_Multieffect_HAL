@@ -17,6 +17,9 @@ static char gain_str_overdrive[3];
 extern uint8_t is_button_active;
 extern char current_info_text[40];
 
+int16_t test_1 = 0;
+int16_t test_2 = 0;
+int16_t test_3 = 0;
 
 uint32_t Get_Parameter_Overdrive(uint8_t parameter)
 {
@@ -187,21 +190,24 @@ void Overdrive(uint16_t *data_out, uint32_t count)
 	if(is_active_overdrive == ACTIVE)
 	{
 		uint16_t n;
-		uint16_t overdrive_temp = 3000*clip_value_overdrive;
+		uint16_t overdrive_temp = 10000*clip_value_overdrive;
 		int16_t curr_sample;
 		int16_t out_sample;
 
 		for(n = count*AUDIO_BLOCK_SIZE/2; n < (count+1)*AUDIO_BLOCK_SIZE/2; n++)
 		{			
-			curr_sample = (int16_t) data_out[n];
-			out_sample = curr_sample;
+			
+		//	curr_sample = (int16_t) data_out[n];
+		//	out_sample = curr_sample;
+			/*
+			test_1 = curr_sample;
 			if(curr_sample <= -(2*overdrive_temp/3))
 			{
 				out_sample = - overdrive_temp;
 			}else if(curr_sample <= -(overdrive_temp/3))
 			{
 				out_sample = ((overdrive_temp/3) + (4*out_sample) + (3*(out_sample*out_sample/overdrive_temp)));	
-			}else if (curr_sample > (-overdrive_temp/3) && curr_sample < (overdrive_temp/3))
+			}else if (curr_sample < (overdrive_temp/3))
 			{
 				out_sample = 2*curr_sample;
 			}else if(curr_sample <= 2*overdrive_temp/3)
@@ -211,9 +217,15 @@ void Overdrive(uint16_t *data_out, uint32_t count)
 			{
 				out_sample = overdrive_temp;
 			}
+			test_2 = out_sample;
 			out_sample = out_sample*(1+(gain_overdrive*1.5f));
-			data_out[n] = (uint16_t)out_sample;
+			test_3 = out_sample;
+			*/
+		 if(data_out[n] > overdrive_temp && data_out[n] < 10000)
+			{
+				data_out[n] = overdrive_temp;
+			}
+			//data_out[n] = (uint16_t)out_sample;
 		} 
 	}
 } 	
-

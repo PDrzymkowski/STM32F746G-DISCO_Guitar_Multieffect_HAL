@@ -1271,9 +1271,6 @@ static void SAIx_In_Init(uint32_t SaiOutMode, uint32_t SlotActive, uint32_t Audi
   haudio_out_sai.Init.OutputDrive = SAI_OUTPUTDRIVE_ENABLED;
   haudio_out_sai.Init.FIFOThreshold = SAI_FIFOTHRESHOLD_1QF;
 
-	//MOJE Ustawienie trybu Mono dla sai
-	 //haudio_out_sai.Init.MonoStereoMode = SAI_MONOMODE;
-
 
   /* Configure SAI_Block_x Frame
   Frame Length: 64
@@ -1295,9 +1292,7 @@ static void SAIx_In_Init(uint32_t SaiOutMode, uint32_t SlotActive, uint32_t Audi
   haudio_out_sai.SlotInit.FirstBitOffset = 0;
   haudio_out_sai.SlotInit.SlotSize = SAI_SLOTSIZE_DATASIZE;
   haudio_out_sai.SlotInit.SlotNumber = 4;
-	//MOJE
   haudio_out_sai.SlotInit.SlotActive = SlotActive;
-	//haudio_out_sai.SlotInit.SlotActive = CODEC_AUDIOFRAME_SLOT_02;
 
   HAL_SAI_Init(&haudio_out_sai);
 
@@ -1333,9 +1328,7 @@ static void SAIx_In_Init(uint32_t SaiOutMode, uint32_t SlotActive, uint32_t Audi
   haudio_in_sai.FrameInit.FSDefinition = SAI_FS_CHANNEL_IDENTIFICATION;
   haudio_in_sai.FrameInit.FSPolarity = SAI_FS_ACTIVE_LOW;
   haudio_in_sai.FrameInit.FSOffset = SAI_FS_BEFOREFIRSTBIT;
-	
-		//MOJE Ustawienie trybu Mono dla sai
-	// haudio_in_sai.Init.MonoStereoMode = SAI_MONOMODE;
+
   
   /* Configure SAI Block_x Slot
   Slot First Bit Offset: 0
@@ -1345,9 +1338,7 @@ static void SAIx_In_Init(uint32_t SaiOutMode, uint32_t SlotActive, uint32_t Audi
   haudio_in_sai.SlotInit.FirstBitOffset = 0;
   haudio_in_sai.SlotInit.SlotSize = SAI_SLOTSIZE_DATASIZE;
   haudio_in_sai.SlotInit.SlotNumber = 4;
-	//MOJE
   haudio_in_sai.SlotInit.SlotActive = SlotActive;
-	//haudio_in_sai.SlotInit.SlotActive = SAI_SLOTACTIVE_0;
 
   HAL_SAI_Init(&haudio_in_sai);
 

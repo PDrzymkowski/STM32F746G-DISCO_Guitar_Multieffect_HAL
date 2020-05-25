@@ -152,12 +152,13 @@ static uint8_t CODEC_IO_Write(uint8_t Addr, uint16_t Reg, uint16_t Value);
   counter += CODEC_IO_Write(DeviceAddr, 0x102, 0x0000);
 
   /* Enable VMID soft start (fast), Start-up Bias Current Enabled */
-  counter += CODEC_IO_Write(DeviceAddr, 0x39, 0x006C); 	// INZ 2 ANTI_POP_2_REG	
+  counter += CODEC_IO_Write(DeviceAddr, 0x39, 0x006C); 	
 
     /* Enable bias generator, Enable VMID */
   if (input_device > 0)
   {
-    counter += CODEC_IO_Write(DeviceAddr, 0x01, 0x0013); // INZ 3 POWER_MANAG_1_REG	
+    counter += CODEC_IO_Write(DeviceAddr, 0x01, 0x0003);
+		counter += CODEC_IO_Write(DeviceAddr, 0x01, 0x0010);
   }
   else
   {

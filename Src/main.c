@@ -145,7 +145,11 @@ uint8_t second_counter = 0;
 uint8_t SD_state = MSD_OK;
 uint8_t SD_is_present = SD_PRESENT;
 uint32_t sd_data_buffer[BUFFER_WORDS_SIZE];
-
+int16_t sample_x1 = 0;
+int16_t sample_x2 = 0;
+int16_t sample_x3 = 0;
+int16_t sample_x4 = 0;
+int16_t sample_x5 = 0;
 /**
   * Tablica nazw przyciskow menu glownego aplikacji
   */
@@ -366,7 +370,7 @@ static void MX_TIM10_Init(void)
   htim10.Instance = TIM10;
   htim10.Init.Prescaler = 20000;
   htim10.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim10.Init.Period = 1000;
+  htim10.Init.Period = 2000;
   htim10.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim10.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim10) != HAL_OK)
@@ -481,7 +485,7 @@ void Display_StartWindow(uint8_t is_blinking)
 			if(SD_is_present == SD_NOT_PRESENT)
 				BSP_LCD_DisplayStringAt(195, 160, (uint8_t *)"Brak karty SD", LEFT_MODE);
 			else if(SD_is_present == SD_PRESENT)
-				BSP_LCD_DisplayStringAt(155, 160, (uint8_t *)"Karta SD wykryta, zresetuj urzadzenie", LEFT_MODE);
+				BSP_LCD_DisplayStringAt(145, 160, (uint8_t *)"Karta SD wykryta, zresetuj urzadzenie", LEFT_MODE);
 		}else
 		{
 			BSP_LCD_DisplayStringAt(195, 160, (uint8_t *)"Blad karty SD.", LEFT_MODE);
@@ -786,6 +790,11 @@ void Multieffect(void)
 	
 	/* Wyciszenie sygnalu wyjsciowego w ekranie startowym aplikacji */
 	BSP_AUDIO_OUT_SetMute(AUDIO_MUTE_ON);
+  BSP_AUDIO_OUT_SetMute(AUDIO_MUTE_OFF);
+	
+	/* Ustawienie glosnosci wyjsciowej sygnalu na podstawie parametru aplikacji */
+	uint8_t current_volume = Get_Parameter_Volume();
+	BSP_AUDIO_OUT_SetVolume(current_volume);
 	
 	 while (1)
 	{
@@ -803,8 +812,23 @@ void Multieffect(void)
 		
 		/* Przetworzenie próbek sygnalu wlaczonymi efektami */
 		Signal_Processing(data_in, data_out, count);
+    sample_x1 = (int16_t)data_out[count*100];
+		sample_x3 = (int16_t)data_out[count*70];
+		sample_x4 = (int16_t)data_out[count*124];
+		sample_x5 = (int16_t)data_out[count*164];
+		if(sample_x2 < sample_x1) {
+			sample_x2 = sample_x1;
+		}
+		if(sample_x2 < sample_x3) {
+			sample_x2 = sample_x3;
+		}
+				if(sample_x2 < sample_x4) {
+			sample_x2 = sample_x4;
+		}
+		if(sample_x2 < sample_x5) {
+			sample_x2 = sample_x5;
+		}
 
-		
 		/* Powielenie probek w buforze, aby dzwiek byl slyszalny na obu kanalach */
 		m = 0;
 		for(n = count*AUDIO_BLOCK_SIZE/2; n < (count+1)*AUDIO_BLOCK_SIZE/2; n++) 
@@ -1123,7 +1147,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			Current_Window_Select();
 			/* Ustawienie flagi 'Przycisk wcisniety' */
 			is_button_active = BUTTON_ACTIVE;
-			if(is_codec_initialized == AUDIO_OK)
+			if(is_codec_initialized == AUDIO_OK && current_window != START_WINDOW)
 				BSP_AUDIO_OUT_SetMute(AUDIO_MUTE_OFF);
 		}
 		else

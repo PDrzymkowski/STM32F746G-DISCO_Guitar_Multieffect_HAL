@@ -349,7 +349,7 @@ void Chorus(uint16_t *data_in, uint16_t* data_out, uint32_t count)
 				prev_sample1 = data_out[(n + AUDIO_BUFFER_SIZE - delay_samples1) % AUDIO_BUFFER_SIZE];
 				prev_sample2 = data_out[(n + AUDIO_BUFFER_SIZE - delay_samples2) % AUDIO_BUFFER_SIZE];
 			}
-			out_sample = (curr_sample + depth1_chorus*prev_sample1 +depth2_chorus*prev_sample2)/(1+depth1_chorus + depth2_chorus);
+			out_sample = (curr_sample + depth1_chorus*prev_sample1 + depth2_chorus*prev_sample2)/(1+depth1_chorus + depth2_chorus);
 			data_out[n] = (uint16_t) (out_sample);
 
 			chorus_n1 = (chorus_n1 + chorus_period1 + 1) % chorus_period1;
